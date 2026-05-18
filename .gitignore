@@ -1,0 +1,49 @@
+# ── Data besar — tidak di-push ke GitHub ─────────────────────────────────────
+data/raw/genomes/
+data/raw/metadata/
+data/interim/
+data/processed/
+*.fna
+*.fasta
+*.fa
+*.fastq
+*.gz
+
+# ── Model weights & HuggingFace cache ────────────────────────────────────────
+weights/
+*.joblib
+*.pkl
+
+# ── Artifact besar (embeddings & matrices) ───────────────────────────────────
+artifacts/embeddings/
+*.npz
+
+# ── Artifacts yang bisa di-generate ulang ────────────────────────────────────
+# Hapus baris di bawah jika ingin commit model/metrics untuk demo
+artifacts/models/
+artifacts/matrices/
+outputs/
+
+# ── Python runtime ────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+.env
+.venv/
+venv/
+env/
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
