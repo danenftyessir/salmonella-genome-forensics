@@ -1,0 +1,25 @@
+numpy
+pandas
+biopython
+scikit-learn
+scipy
+matplotlib
+seaborn
+umap-learn
+requests
+pyyaml
+jupyter
+joblib
+pyarrow
+
+# PyTorch (CPU) — DNABERT-2 framework
+# Install manual: pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch
+
+# HuggingFace stack untuk DNABERT-2
+transformers
+einops
+accelerate
+
+# Experiment tracking (opt-in MLflow local)
+mlflow
