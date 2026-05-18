@@ -1,0 +1,106 @@
+# ── Project identity & global reproducibility seed ───────────────────────────
+project:
+  name: SalmoTrace-BERT
+  version: "1.0"
+  random_state: 42   # single source of truth — referenced by ml, split, UMAP, etc.
+
+data:
+  raw_genomes_dir: data/raw/genomes/
+  metadata_path: data/raw/metadata/metadata_salmonella.csv
+  windows_dir: data/processed/windows/
+  snp_context_dir: data/processed/snp_context/
+  reference_genome: GCF_000006945.2  # Salmonella Typhimurium LT2
+
+# ── Stage 1 — Metadata preprocessing ──────────────────────────────────────
+metadata:
+  organism: "Salmonella enterica"
+  top_serovars: 3
+  target_col: "isolation_source"
+
+# ── Stage 2 — Genome QC thresholds ────────────────────────────────────────
+genome_qc:
+  min_genome_bp: 4000000
+  max_genome_bp: 6000000
+  max_n_fraction: 0.05
+  max_contig_count: 500
+
+# ── Stage 3/4 — Sequence preprocessing ───────────────────────────────────
+preprocessing:
+  window_size: 512
+  max_windows_per_isolate: 50
+  max_n_fraction_window: 0.10
+  snp_context_flank: 100
+  use_snp_context_windows: true
+  valid_bases: [A, T, G, C, N]
+
+# ── Isolate count limits ──────────────────────────────────────────────────
+pipeline:
+  n_isolates_min: 10
+  n_isolates_max: 60
+  organism: Salmonella enterica
+  force_recompute: false   # set true to ignore all cached artifacts
+
+# ── DNABERT-2 ─────────────────────────────────────────────────────────────
+dnabert:
+  model_id: zhihan1996/DNABERT-2-117M
+  embedding_dim: 768
+  cache_dir: weights/dnabert2/
+  device: cpu
+
+# ── Clustering ────────────────────────────────────────────────────────────
+clustering:
+  method: ward
+  metric: euclidean
+
+# ── E5 — k-mer baseline (alignment-free) ─────────────────────────────────
+kmer:
+  enabled: false   # set true to run E5 k-mer baseline
+  k: 4             # tetranucleotide → 256 features
+
+# ── Stage 5 — ML ──────────────────────────────────────────────────────────
+ml:
+  model: RandomForest
+  target_col: isolation_source
+  test_size: 0.2
+  random_state: 42
+  n_estimators: 100
+
+# ── Artifact paths (relative to project root) ─────────────────────────────
+# load_or_compute uses these paths for save/load checkpoints.
+artifacts:
+  # Stage 1: cleaned metadata
+  metadata_clean_path: data/interim/clean_metadata.parquet
+
+  # Stage 2: per-isolate genome QC report
+  sequence_quality_path: data/interim/sequence_quality.csv
+
+  # Stage 3: SNP matrix + distance matrix
+  snp_matrix_path: artifacts/matrices/snp_matrix.parquet
+  snp_encoded_path: artifacts/matrices/snp_matrix_encoded.parquet
+  distance_matrix_path: artifacts/matrices/distance_matrix.csv
+
+  # Stage 4: DNABERT embeddings (NPZ — compressed float32)
+  embeddings_path: artifacts/embeddings/dnabert_embeddings.npz
+
+  # Stage 5: trained model + metrics
+  model_path: artifacts/models/rf_model.joblib
+  metrics_path: artifacts/reports/metrics.json
+  manifest_path: artifacts/reports/manifest.json
+  forensic_path: artifacts/reports/forensic_report.txt
+  limitations_path: artifacts/reports/limitations_report.txt
+
+# ── Experiment tracking ───────────────────────────────────────────────────
+tracking:
+  # Layer 1 — always on: model_comparison.csv + bio_interpretation in metrics.json
+  comparison_path: artifacts/reports/model_comparison.csv
+
+  # Layer 2 — opt-in: MLflow local tracking
+  mlflow_enabled: false
+  experiment_name: SalmoTrace-BERT
+  tracking_uri: mlruns   # local directory, run `mlflow ui` to view
+
+# ── Figure output ─────────────────────────────────────────────────────────
+output:
+  figures_dir: outputs/figures/
+  csv_dir: outputs/csv/          # kept for backward-compat legacy exports
+  reports_dir: artifacts/reports/
