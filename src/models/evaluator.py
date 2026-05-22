@@ -54,6 +54,9 @@ def plot_roc_curve(clf, X_test, y_test, out_path: str):
     if len(classes) != 2:
         print("[INFO] ROC curve hanya untuk klasifikasi biner, dilewati.")
         return
+    if not hasattr(clf, "predict_proba"):
+        print("[INFO] Classifier tidak punya predict_proba, ROC curve dilewati.")
+        return
     y_prob = clf.predict_proba(X_test)[:, 1]
     fpr, tpr, _ = roc_curve(y_test, y_prob, pos_label=classes[1])
     roc_auc = auc(fpr, tpr)

@@ -1,0 +1,64 @@
+==================================================================
+  SalmoTrace-BERT — Pipeline Summary Report
+  Generated : 2026-05-22 10:24:31
+==================================================================
+
+[1] Dataset
+    Isolat valid     : 44
+    Sumber data      : NCBI Pathogen Detection / Datasets
+    Referensi genome : GCF_000006945.2
+
+[2] SNP Analysis (E1 — SNP Distance Clustering)
+    Posisi SNP total : 1268
+    Jarak SNP maks   : 1250
+    Jarak SNP rata²  : 146.41
+
+[3] Hierarchical Clustering
+    Metode           : ward
+    Jumlah kluster   : 5
+
+[3b] Cluster Validation vs Metadata (ARI / NMI)
+    Metadata Col                ARI      NMI   #Cat
+    ----------------------------------------------
+    isolation_source         0.1346   0.3779     12
+    serovar                  0.1304   0.1147      2
+    snp_cluster              0.1282   0.3735     17
+    geo_loc_name             0.1342   0.3667      9
+
+[4] DNABERT Embedding
+    Model            : zhihan1996/DNABERT-2-117M
+    Dimensi          : 768
+    Device           : cpu
+
+[5] ML Classification — Ablation Study (Source Attribution)
+    Experiment                        Macro F1  Bal. Acc  F1 (wt.)  Silhouette      Split
+    ----------------------------------------------------------------------------------
+    E2  SNP-only Random Forest          0.4176    0.5123    0.4490      0.1794   sgkf_cv5
+    E3  DNABERT Embedding               0.3437    0.4667    0.4152         -     sgkf_cv5
+    E4  Hybrid SNP + DNABERT            0.3554    0.4857    0.4335         -     sgkf_cv5
+
+[6] Output Files
+    Figures          : outputs/figures/
+    Reports          : artifacts/reports/
+
+[7] Batasan & Disclaimer
+    Penelitian ini merupakan simulasi forensik genomik menggunakan data
+    publik NCBI Pathogen Detection. MBG diposisikan sebagai konteks aktual
+    keamanan pangan; analisis ini bukan investigasi epidemiologis resmi.
+
+    Batasan utama:
+    (a) Dataset bukan isolat MBG langsung — klaim dibatasi pada dataset.
+    (b) DNABERT-2 dipakai sebagai feature extractor tanpa fine-tuning.
+    (c) SNP distance menunjukkan kedekatan genomik, bukan bukti epidemiologi.
+    (d) Source attribution hanya berlaku pada dataset & label yang dianalisis.
+    (e) Hasil tidak dapat digunakan untuk menetapkan sumber kontaminasi nyata
+        tanpa validasi epidemiologi lapangan yang independen.
+    (f) Dataset mencakup isolat 2001–2013, seluruhnya dari USA. Tidak
+        merepresentasikan isolat MBG 2025 maupun kondisi Indonesia.
+        Hasil hanya sebagai demonstrasi pipeline forensik genomik.
+    (g) Jumlah SNP absolut antar-isolat sangat tinggi akibat pendekatan
+        reference-free pairwise (bukan core-SNP terhadap referensi tunggal).
+        Pasangan dengan jarak SNP terkecil disebut 'relatif paling mirip
+        dalam dataset', bukan sebagai kandidat common source secara biologis.
+
+==================================================================

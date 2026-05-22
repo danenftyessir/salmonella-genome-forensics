@@ -1,0 +1,46 @@
+================================================================================
+  RISK ASSESSMENT — SalmoTrace-BERT
+================================================================================
+
+[PERINGATAN AKTIF]
+────────────────────────────────────────────────────────────────────────────────
+  1. CLASS IMBALANCE: 8 kelas dengan < 3 sampel: {'swine': 2, 'human': 2, 'produce': 1,
+     'animal_other': 1, 'environment': 1, 'raw milk': 1, 'pet_food': 1, 'turkey': 1}.
+     Estimasi F1 per kelas tidak stabil untuk kelas kecil.
+  2. LEAKAGE RISK TINGGI: snp_only ΔF1=+0.345, kmer_only ΔF1=+0.190. Naive F1 jauh lebih
+     tinggi dari group-aware F1 — menunjukkan bahwa split tanpa kontrol SNP cluster
+     menghasilkan overestimasi performa nyata.
+  3. BIAS GEOGRAFIS: 100% isolat berasal dari 'USA'. Hasil mungkin tidak generalizable
+     ke wilayah lain. Klaim dibatasi pada dataset yang dianalisis.
+
+[CATATAN PENTING]
+────────────────────────────────────────────────────────────────────────────────
+  1. Dataset bukan isolat MBG. Penelitian ini menggunakan data publik NCBI Pathogen
+     Detection untuk mensimulasikan forensik genomik. MBG diposisikan sebagai konteks
+     aktual keamanan pangan, bukan target investigasi langsung.
+  2. Dataset moderat: 44 isolat. Cukup untuk demonstrasi pipeline, tetapi generalisasi
+     ke populasi lebih luas perlu dataset yang lebih besar.
+  3. DNABERT-2 digunakan sebagai feature extractor tanpa fine-tuning
+     (zhihan1996/DNABERT-2-117M). Embedding bersifat general dan mungkin tidak optimal
+     untuk Salmonella. Fine-tuning pada data Salmonella spesifik bisa meningkatkan
+     performa embedding secara signifikan.
+  4. Label metadata dinormalisasi: 12 kategori unik. Jika entri 'Not Provided' masih
+     muncul, ini keterbatasan dataset (metadata mungkin di-cache sebelum filter ambigu
+     diperbarui). Set force_recompute: true dan hapus artifacts/data/interim/ untuk
+     membersihkan ulang.
+
+[RISIKO DIMITIGASI]
+────────────────────────────────────────────────────────────────────────────────
+  1. Separasi genomik baik: 32.2× — cluster terbentuk dengan jelas.
+  2. Reference genome tetap: GCF_000006945.2 (Salmonella Typhimurium LT2). Reference
+     yang berbeda akan menghasilkan posisi SNP yang berbeda. Pilihan ini
+     didokumentasikan di config.yaml dan manifest.json.
+  3. QC: semua 44 isolat lulus threshold kualitas genome.
+
+────────────────────────────────────────────────────────────────────────────────
+  DISCLAIMER:
+  Penelitian ini merupakan simulasi forensik genomik berbasis data publik NCBI Pathogen
+  Detection, bukan investigasi epidemiologis resmi. Hasil prediksi source attribution
+  tidak dapat digunakan sebagai bukti sumber kontaminasi kasus nyata tanpa validasi
+  epidemiologi independen.
+────────────────────────────────────────────────────────────────────────────────

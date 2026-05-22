@@ -2,8 +2,10 @@
 
 import numpy as np
 import pandas as pd
+from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC, LinearSVC
 from sklearn.preprocessing import StandardScaler
 
 
@@ -55,10 +57,23 @@ def prepare_hybrid_features(
     embedding_df: pd.DataFrame,
     metadata_df: pd.DataFrame,
     target_col: str,
+    snp_n_components: int = 40,
 ):
-    """Hybrid feature set: integer-encoded SNP matrix concatenated with DNABERT embeddings."""
-    # Align on shared accessions
-    combined = snp_encoded_df.join(embedding_df, how="inner")
+    """Hybrid: raw SNP (integer-encoded) concatenated with DNABERT embeddings.
+
+    Dimensionality reduction (TruncatedSVD) is intentionally NOT performed
+    here.  It is applied inside each CV fold in pipeline._run_single, fitted
+    ONLY on the training fold, to prevent any information from the test fold
+    leaking into the feature transformation (scikit-learn best practice).
+
+    The snp_n_components argument is kept for API compatibility but is ignored;
+    the effective n_components is read from cfg["ml"]["snp_n_components"] inside
+    _run_single.
+    """
+    shared  = snp_encoded_df.index.intersection(embedding_df.index)
+    snp_sub = snp_encoded_df.loc[shared]
+    emb_sub = embedding_df.loc[shared]
+    combined = snp_sub.join(emb_sub, how="inner")
     return _join_target(combined, metadata_df, target_col)
 
 
@@ -88,12 +103,26 @@ def train_classifier(
 
     if model_type == "RandomForest":
         clf = RandomForestClassifier(
-            n_estimators=n_estimators, random_state=random_state, n_jobs=-1
+            n_estimators=n_estimators, random_state=random_state, n_jobs=-1,
+            class_weight="balanced",
         )
     elif model_type == "SVM":
         clf = SVC(kernel="rbf", probability=True, random_state=random_state)
+    elif model_type == "LogisticRegression":
+        clf = LogisticRegression(
+            class_weight="balanced", max_iter=5000, random_state=random_state,
+        )
+    elif model_type == "LinearSVC":
+        clf = LinearSVC(
+            class_weight="balanced", max_iter=5000, random_state=random_state,
+        )
+    elif model_type == "Dummy":
+        clf = DummyClassifier(strategy="most_frequent", random_state=random_state)
     else:
-        raise ValueError(f"Model tidak dikenal: '{model_type}'. Pilih 'RandomForest' atau 'SVM'.")
+        raise ValueError(
+            f"Model tidak dikenal: '{model_type}'. "
+            "Pilih 'RandomForest', 'SVM', 'LogisticRegression', 'LinearSVC', atau 'Dummy'."
+        )
 
     clf.fit(X_train, y_train)
     print(f"Model {model_type} selesai dilatih  (scale={scale}).")

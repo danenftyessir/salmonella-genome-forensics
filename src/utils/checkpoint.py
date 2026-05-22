@@ -64,7 +64,14 @@ def save_parquet(df: pd.DataFrame, path) -> None:
 
 
 def load_parquet(path) -> pd.DataFrame:
-    return pd.read_parquet(path)
+    # Default pyarrow thrift limits are too small for wide SNP matrices.
+    # thrift_container_size_limit caps the number of elements in a single
+    # thrift container (e.g. row-group column list); raise it to 100 M.
+    return pd.read_parquet(
+        path,
+        thrift_string_size_limit=1_000_000_000,
+        thrift_container_size_limit=100_000_000,
+    )
 
 
 # ---------------------------------------------------------------------------

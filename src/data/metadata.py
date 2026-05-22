@@ -28,6 +28,12 @@ SOURCE_NORMALIZATION: dict[str, str] = {
     "swine": "swine",
     "pork": "swine",
     "pig": "swine",
+    # wild / non-companion animals — MUST appear before generic "feces"
+    "rodent": "wildlife",
+    "rat ": "wildlife",
+    "mouse": "wildlife",
+    "llama": "animal_other",
+    "camel": "animal_other",
     # human / clinical
     "human clinical": "human",
     "human feces": "human",
@@ -68,11 +74,87 @@ SOURCE_NORMALIZATION: dict[str, str] = {
     "egg": "egg",
     # turkey
     "turkey": "turkey",
+    # produce (bean/sprout varieties)
+    "sprout": "produce",
+    "bean sprout": "produce",
+    "mung bean": "produce",
+    "pet food": "pet_food",
+    # wildlife / wild birds
+    "house sparrow": "wildlife",
+    "redpoll": "wildlife",
+    "sparrow": "wildlife",
+    "finch": "wildlife",
+    "wild bird": "wildlife",
+    "bird": "wildlife",
+    # companion animals
+    "cat": "companion_animal",
+    "feline": "companion_animal",
+    "dog": "companion_animal",
+    "canine": "companion_animal",
+    "kennel": "companion_animal",
+    # environment (housing / facility)
+    "rabbit cage": "environment",
+    "cage": "environment",
+    "litter": "environment",
+    # human (intestinal / clinical)
+    "colon": "human",
+    "intestine": "human",
+    "cecum": "human",
+    "cecal": "human",
+    "rectal": "human",
 }
 
 AMBIGUOUS_LABELS: set[str] = {
-    "unknown", "not collected", "missing", "not available",
+    "unknown", "not provided", "not collected", "missing", "not available",
     "not determined", "na", "n/a", "none", "", "nan",
+}
+
+# Binary forensic target: food-chain-associated vs non-food-chain-associated.
+# Keyed on NORMALIZED isolation_source values (output of normalize_isolation_source).
+# Rationale: Salmonella food safety forensics — distinguish strains that move
+# through the food production/distribution chain from those that do not.
+BINARY_SOURCE_MAP: dict[str, str] = {
+    # ── food_chain_associated ─────────────────────────────────────────────────
+    "cattle":           "food_chain_associated",   # beef, dairy, bovine
+    "poultry":          "food_chain_associated",   # chicken, broiler
+    "swine":            "food_chain_associated",   # pork
+    "turkey":           "food_chain_associated",
+    "egg":              "food_chain_associated",
+    "raw milk":         "food_chain_associated",
+    "produce":          "food_chain_associated",   # sprouts, vegetables
+    "pet_food":         "food_chain_associated",   # contaminated manufactured food
+    "pet food":         "food_chain_associated",
+    # ── non_food_chain_associated ─────────────────────────────────────────────
+    "human":            "non_food_chain_associated",
+    "wildlife":         "non_food_chain_associated",
+    "companion_animal": "non_food_chain_associated",
+    "environment":      "non_food_chain_associated",
+    "animal_other":     "non_food_chain_associated",
+}
+
+SOURCE_GROUP_MAP: dict[str, str] = {
+    # food-producing animals
+    "cattle":        "food_animal",
+    "poultry":       "food_animal",
+    "swine":         "food_animal",
+    "turkey":        "food_animal",
+    "egg":           "food_animal",
+    # food / food-related (non-animal)
+    "produce":          "food_related",
+    "raw milk":         "food_related",
+    "pet food":         "food_related",
+    "pet_food":         "food_related",
+    # human / clinical
+    "human":            "human_clinical",
+    "spiral colon":     "human_clinical",
+    # environmental
+    "environment":      "environment",
+    "kennel":           "environment",
+    "rabbit cage":      "environment",
+    # companion animals (pet cats, dogs, kennel dogs)
+    "companion_animal": "animal_other",
+    # wildlife (wild birds, rodents)
+    "wildlife":         "animal_other",
 }
 
 
@@ -148,6 +230,39 @@ def select_dominant_serovars(df: pd.DataFrame, top_n: int = 3) -> pd.DataFrame:
     before = len(df)
     df = df[df["serovar"].isin(top)].reset_index(drop=True)
     print(f"Pilih {top_n} serovar dominan {top}: {before} → {len(df)} isolat")
+    return df
+
+
+def add_source_group(df: pd.DataFrame, col: str = "isolation_source") -> pd.DataFrame:
+    """Map normalized isolation_source to coarser source_group (5 groups).
+
+    Groups: food_animal, food_related, human_clinical, environment, animal_other.
+    Unlisted normalized labels fall back to 'animal_other'.
+    """
+    df = df.copy()
+    df["source_group"] = df[col].map(SOURCE_GROUP_MAP).fillna("animal_other")
+    print(f"source_group distribusi: {df['source_group'].value_counts().to_dict()}")
+    return df
+
+
+def add_binary_source(df: pd.DataFrame, col: str = "isolation_source") -> pd.DataFrame:
+    """Map normalized isolation_source to binary forensic label.
+
+    Labels
+    ------
+    food_chain_associated     — livestock (cattle/poultry/swine/turkey), produce,
+                                raw milk, pet food.  These are strains that can
+                                enter the human food supply.
+    non_food_chain_associated — wildlife, companion animals, human clinical,
+                                environmental.  Strains not primarily linked to
+                                the food production chain.
+
+    Call AFTER normalize_isolation_source() so `col` contains canonical labels.
+    Unrecognized values fall back to 'non_food_chain_associated' (conservative).
+    """
+    df = df.copy()
+    df["source_binary"] = df[col].map(BINARY_SOURCE_MAP).fillna("non_food_chain_associated")
+    print(f"source_binary distribusi: {df['source_binary'].value_counts().to_dict()}")
     return df
 
 

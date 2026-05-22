@@ -87,6 +87,12 @@ def _bio_e3(m: dict, all_metrics: dict) -> str:
             "DNABERT representations are insufficiently specialised for source attribution "
             "on this small dataset."
         )
+    if f1 <= 0.10:
+        return (
+            f"DNABERT embeddings (F1={f1:.3f}) dan SNP-only menghasilkan performa yang sama rendah. "
+            "Dengan Macro F1 di bawah 0.10, tidak ada mode yang menunjukkan kemampuan source "
+            "attribution. Dataset terlalu kecil dan label terlalu granular untuk kesimpulan statistik."
+        )
     return (
         f"DNABERT embeddings (F1={f1:.3f}) are comparable to SNP-only features. "
         "The transformer captures sequence context that partially compensates for "
@@ -157,6 +163,12 @@ def _bio_e1(w_m: float, b_m: float, sil: float, ari: float) -> str:
             parts.append(
                 f"Clustering shows moderate genomic separation "
                 f"({sep:.1f}× between/within SNP distance ratio)."
+            )
+        elif sep <= 1.05:
+            parts.append(
+                f"Separation ratio sangat rendah ({sep:.2f}×): isolat dalam kluster dan "
+                f"antar-kluster hampir sama jauhnya (within={w_m:.0f} vs between={b_m:.0f} SNP). "
+                "Kluster yang terbentuk tidak bermakna secara biologis."
             )
         else:
             parts.append(

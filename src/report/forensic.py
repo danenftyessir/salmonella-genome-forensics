@@ -52,10 +52,15 @@ def build_forensic_table(
 
         if clf is not None and feature_df is not None and acc in feature_df.index:
             x = feature_df.loc[[acc]].values
-            rec["predicted_source"] = clf.predict(x)[0]
-            if hasattr(clf, "predict_proba"):
-                proba = clf.predict_proba(x)[0]
-                rec["prediction_confidence"] = round(float(proba.max()), 4)
+            try:
+                rec["predicted_source"] = clf.predict(x)[0]
+                if hasattr(clf, "predict_proba"):
+                    proba = clf.predict_proba(x)[0]
+                    rec["prediction_confidence"] = round(float(proba.max()), 4)
+            except ValueError:
+                # clf was trained on a different feature set (e.g. hybrid SNP+DNABERT)
+                # but feature_df only has DNABERT embeddings — skip prediction gracefully
+                pass
 
         records.append(rec)
 

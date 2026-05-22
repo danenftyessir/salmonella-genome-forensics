@@ -1,0 +1,233 @@
+==============================================================================
+  SalmoTrace-BERT — Forensic Interpretation Report
+  Generated : 2026-05-22 10:24:31
+==============================================================================
+
+[Ablation Study — Source Attribution (3 feature modes)]
+  Experiment                        Macro F1  Bal. Acc  F1 (wt.)        Split
+  -------------------------------------------------------------------------
+  E2  SNP-only Random Forest          0.4176    0.5123    0.4490     sgkf_cv5
+  E3  DNABERT Embedding               0.3437    0.4667    0.4152     sgkf_cv5
+  E4  Hybrid SNP + DNABERT            0.3554    0.4857    0.4335     sgkf_cv5
+
+[Per-Isolate Forensic Summary]
+
+  Isolate           : GCA_007907145.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_006690585.1  (SNP dist = 3)  [same source]
+  Neighbor source   : non_food_chain_associated
+
+  Isolate           : GCA_011085765.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_010662245.1  (SNP dist = 2)  [same source]
+  Neighbor source   : non_food_chain_associated
+
+  Isolate           : GCA_011455035.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_006690585.1  (SNP dist = 3)  [same source]
+  Neighbor source   : non_food_chain_associated
+
+  Isolate           : GCA_014448235.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011462135.1  (SNP dist = 484)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_010702775.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_006690585.1  (SNP dist = 30)  [same source]
+  Neighbor source   : non_food_chain_associated
+
+  Isolate           : GCA_011454595.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_006691125.1  (SNP dist = 5)  [different source]
+  Neighbor source   : non_food_chain_associated
+
+  Isolate           : GCA_011454405.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011456875.1  (SNP dist = 5)  [different source]
+  Neighbor source   : non_food_chain_associated
+
+  Isolate           : GCA_010662245.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011085765.1  (SNP dist = 2)  [same source]
+  Neighbor source   : non_food_chain_associated
+
+  Isolate           : GCA_006690585.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_007907145.1  (SNP dist = 3)  [same source]
+  Neighbor source   : non_food_chain_associated
+
+  Isolate           : GCA_011455775.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011457055.1  (SNP dist = 0)  [different source]
+  Neighbor source   : non_food_chain_associated
+
+  Isolate           : GCA_011457775.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_008003565.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011456835.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_006813085.1  (SNP dist = 1032)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_006691125.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011457775.1  (SNP dist = 2)  [different source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011457855.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_014448235.1  (SNP dist = 904)  [different source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011456875.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011089285.1  (SNP dist = 4)  [different source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011457055.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011455775.1  (SNP dist = 0)  [different source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011458355.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011455775.1  (SNP dist = 0)  [different source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011457315.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_008116675.1  (SNP dist = 2)  [different source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011458575.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011458475.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011457535.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011455775.1  (SNP dist = 0)  [different source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011457135.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011455775.1  (SNP dist = 0)  [different source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011458475.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011458575.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011457395.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011455775.1  (SNP dist = 0)  [different source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011458515.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011458575.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011457415.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011458575.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011457095.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011458575.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_010662265.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011458575.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011457495.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011458695.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011458695.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011457495.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011457335.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011458575.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_008013955.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011457495.1  (SNP dist = 6)  [different source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_008003785.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011457495.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_008003645.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011457495.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_008003565.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011457775.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011457625.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011458575.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011457655.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011458575.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_006813085.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_008115465.1  (SNP dist = 5)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_006755665.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011455775.1  (SNP dist = 1)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011089285.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011456875.1  (SNP dist = 4)  [different source]
+  Neighbor source   : non_food_chain_associated
+
+  Isolate           : GCA_011088605.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011462135.1  (SNP dist = 1)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011462135.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011089645.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_011089645.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011462135.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+
+  Isolate           : GCA_008116675.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011457315.1  (SNP dist = 2)  [different source]
+  Neighbor source   : non_food_chain_associated
+
+  Isolate           : GCA_008115465.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011454405.1  (SNP dist = 5)  [same source]
+  Neighbor source   : food_chain_associated
