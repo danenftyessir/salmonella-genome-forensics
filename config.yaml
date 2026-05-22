@@ -15,7 +15,7 @@ data:
 metadata:
   organism: "Salmonella enterica"
   top_serovars: 3
-  target_col: "isolation_source"
+  target_col: "source_group"
 
 # ── Stage 2 — Genome QC thresholds ────────────────────────────────────────
 genome_qc:
@@ -23,6 +23,12 @@ genome_qc:
   max_genome_bp: 6000000
   max_n_fraction: 0.05
   max_contig_count: 500
+
+# ── Stage 3 — Reference-based core-SNP calling ───────────────────────────
+snp:
+  k: 21                    # k-mer length for alignment anchoring (4^21 >> ref length)
+  min_core_fraction: 0.95  # soft-core: position callable in ≥95% of isolates
+                           # set 1.0 for strict core (every isolate must have a call)
 
 # ── Stage 3/4 — Sequence preprocessing ───────────────────────────────────
 preprocessing:
@@ -36,7 +42,7 @@ preprocessing:
 # ── Isolate count limits ──────────────────────────────────────────────────
 pipeline:
   n_isolates_min: 10
-  n_isolates_max: 60
+  n_isolates_max: 300      # naikkan sesuai jumlah isolat yang ditambahkan
   organism: Salmonella enterica
   force_recompute: false   # set true to ignore all cached artifacts
 
@@ -54,16 +60,21 @@ clustering:
 
 # ── E5 — k-mer baseline (alignment-free) ─────────────────────────────────
 kmer:
-  enabled: false   # set true to run E5 k-mer baseline
-  k: 4             # tetranucleotide → 256 features
+  enabled: true    # set false to skip E5 k-mer baseline
+  k: 5             # pentanucleotide → 1024 features
 
 # ── Stage 5 — ML ──────────────────────────────────────────────────────────
 ml:
   model: RandomForest
-  target_col: isolation_source
+  target_col: source_binary  # binary: food_chain_associated vs non_food_chain_associated
   test_size: 0.2
   random_state: 42
-  n_estimators: 100
+  n_estimators: 200
+  min_class_samples: 2       # binary → tidak perlu merge, tapi tetap safety net
+  snp_n_components: 40       # TruncatedSVD: reduksi SNP ke N PC (fit on train only)
+  svd_feature_threshold: 5000  # apply SVD only when n_features > threshold
+                               # preserves 768-dim DNABERT; reduces large SNP matrices
+  feature_select_k: 100      # SelectKBest (mutual_info_classif) untuk SNP experiments
 
 # ── Artifact paths (relative to project root) ─────────────────────────────
 # load_or_compute uses these paths for save/load checkpoints.
