@@ -26,14 +26,24 @@ genome_qc:
 
 # ── Stage 3 — Reference-based core-SNP calling ───────────────────────────
 snp:
-  k: 21                    # k-mer length for alignment anchoring (4^21 >> ref length)
-  min_core_fraction: 0.95  # soft-core: position callable in ≥95% of isolates
-                           # set 1.0 for strict core (every isolate must have a call)
+  # ── Snippy-based SNP calling (primary, recommended) ─────────────────────
+  # Run scripts/run_snippy.sh first to generate core alignment files.
+  # Requires: snippy >= 4.6 (conda install -c bioconda snippy)
+  snippy_outdir: data/processed/snippy/       # per-isolate snippy output dirs
+  snippy_core_aln: data/processed/snippy/core.aln   # main input for Stage 3
+  snippy_core_txt: data/processed/snippy/core.txt   # summary (n isolates, n positions)
+
+  # ── Fallback: pure-Python exact k-mer caller (legacy, kept for reference) ─
+  # Only used if core.aln does not exist.  Known limitation: does not handle
+  # reverse-complement contigs or regions near SNP positions (k-mer breaks).
+  k: 21                        # k-mer length for alignment anchoring
+  min_core_fraction: 0.80      # soft-core: position callable in ≥80% of isolates
+  min_isolate_callability: 0.60  # drop isolates covering < 60% of reference
 
 # ── Stage 3/4 — Sequence preprocessing ───────────────────────────────────
 preprocessing:
   window_size: 512
-  max_windows_per_isolate: 50
+  max_windows_per_isolate: 200
   max_n_fraction_window: 0.10
   snp_context_flank: 100
   use_snp_context_windows: true
@@ -44,7 +54,7 @@ pipeline:
   n_isolates_min: 10
   n_isolates_max: 300      # naikkan sesuai jumlah isolat yang ditambahkan
   organism: Salmonella enterica
-  force_recompute: false   # set true to ignore all cached artifacts
+  force_recompute: true    # set true to ignore all cached artifacts
 
 # ── DNABERT-2 ─────────────────────────────────────────────────────────────
 dnabert:
@@ -55,7 +65,7 @@ dnabert:
 
 # ── Clustering ────────────────────────────────────────────────────────────
 clustering:
-  method: ward
+  method: average
   metric: euclidean
 
 # ── E5 — k-mer baseline (alignment-free) ─────────────────────────────────
@@ -92,6 +102,7 @@ artifacts:
 
   # Stage 4: DNABERT embeddings (NPZ — compressed float32)
   embeddings_path: artifacts/embeddings/dnabert_embeddings.npz
+  stat_embeddings_path: artifacts/embeddings/dnabert_stat_embeddings.npz
 
   # Stage 5: trained model + metrics
   model_path: artifacts/models/rf_model.joblib

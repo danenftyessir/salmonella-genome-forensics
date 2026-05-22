@@ -34,6 +34,21 @@ def evaluate(clf, X_test, y_test, label_names: list) -> dict:
     }
 
 
+def _safe_savefig(out_path: str, dpi: int = 150) -> None:
+    """Save figure, retrying with a temp-suffixed name if the file is locked."""
+    import os
+    try:
+        plt.savefig(out_path, dpi=dpi)
+    except PermissionError:
+        alt = out_path.replace(".png", "_tmp.png")
+        plt.savefig(alt, dpi=dpi)
+        try:
+            os.replace(alt, out_path)
+        except PermissionError:
+            print(f"[WARN] Cannot overwrite {out_path} (file locked). "
+                  f"Figure saved as {alt}")
+
+
 def plot_confusion_matrix(y_test, y_pred, label_names: list, out_path: str):
     ensure_dir(out_path.rsplit("/", 1)[0])
     cm   = confusion_matrix(y_test, y_pred, labels=label_names)
@@ -42,7 +57,41 @@ def plot_confusion_matrix(y_test, y_pred, label_names: list, out_path: str):
     disp.plot(ax=ax, xticks_rotation=45, colorbar=False)
     ax.set_title("Confusion Matrix")
     plt.tight_layout()
-    plt.savefig(out_path, dpi=150)
+    _safe_savefig(out_path)
+    plt.close()
+    print(f"Saved: {out_path}")
+
+
+def plot_learning_curve(
+    train_sizes: "np.ndarray",
+    train_scores: "np.ndarray",
+    test_scores: "np.ndarray",
+    out_path: str,
+    title: str = "Learning Curve",
+) -> None:
+    """Plot and save a learning curve (train vs. CV-test score vs. dataset size)."""
+    import numpy as np
+    ensure_dir(out_path.rsplit("/", 1)[0])
+    train_mean = train_scores.mean(axis=1)
+    train_std  = train_scores.std(axis=1)
+    test_mean  = test_scores.mean(axis=1)
+    test_std   = test_scores.std(axis=1)
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.plot(train_sizes, train_mean, "o-", color="steelblue", label="Train F1 (macro)")
+    ax.fill_between(train_sizes, train_mean - train_std, train_mean + train_std,
+                    alpha=0.15, color="steelblue")
+    ax.plot(train_sizes, test_mean, "o-", color="tomato", label="CV Test F1 (macro)")
+    ax.fill_between(train_sizes, test_mean - test_std, test_mean + test_std,
+                    alpha=0.15, color="tomato")
+    ax.axhline(0.85, color="green", linestyle="--", linewidth=0.9, label="Target (0.85)")
+    ax.set_xlabel("Jumlah isolat training")
+    ax.set_ylabel("F1 Macro (mean ± std)")
+    ax.set_title(title)
+    ax.legend()
+    ax.set_ylim(0, 1.05)
+    plt.tight_layout()
+    _safe_savefig(out_path)
     plt.close()
     print(f"Saved: {out_path}")
 
@@ -68,6 +117,6 @@ def plot_roc_curve(clf, X_test, y_test, out_path: str):
     ax.set_title("ROC Curve")
     ax.legend()
     plt.tight_layout()
-    plt.savefig(out_path, dpi=150)
+    _safe_savefig(out_path)
     plt.close()
     print(f"Saved: {out_path}")

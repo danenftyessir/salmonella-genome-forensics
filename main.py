@@ -42,6 +42,7 @@ from snp.filter import remove_high_n_columns
 from data import extract_windows, extract_snp_context_windows, extract_kmer_features, extract_amr_features
 from data.preprocess import save_windows
 from embedding import generate_embeddings
+from embedding.pipeline import generate_stat_embeddings
 
 # Clustering + visualisation + validation
 from clustering import (
@@ -263,6 +264,7 @@ def main(config_path: str = "config.yaml") -> None:
 
     # generate_embeddings has its own NPZ cache check via cfg['artifacts']['embeddings_path']
     embedding_df = generate_embeddings(windows, cfg)
+    stat_embedding_df = generate_stat_embeddings(windows, cfg)
 
     labels_for_plot = metadata_df.set_index("assembly_accession")[target_col]
     fig_emb = _abs(cfg["output"]["figures_dir"] + "embedding/", ROOT)
@@ -303,6 +305,7 @@ def main(config_path: str = "config.yaml") -> None:
             snp_encoded_df=snp_encoded_df,
             kmer_df=kmer_df,
             amr_df=amr_df,
+            stat_embedding_df=stat_embedding_df,
         )
         save_model(best_clf, model_path)
         save_json(
@@ -343,9 +346,15 @@ def main(config_path: str = "config.yaml") -> None:
 
     # Forensic interpretation layer — per-isolate nearest-neighbor summary
     if best_clf is not None:
+        from models.pipeline import _select_forensic_feature_df
+        _best_mode     = best_metrics.get("best_mode") if best_metrics else None
+        _forensic_feat = _select_forensic_feature_df(
+            _best_mode, embedding_df, snp_encoded_df, kmer_df, amr_df,
+            stat_embedding_df=stat_embedding_df,
+        )
         forensic_df = build_forensic_table(
             dist_df, metadata_df, target_col=target_col,
-            clf=best_clf, feature_df=embedding_df,
+            clf=best_clf, feature_df=_forensic_feat,
         )
         generate_forensic_summary(
             forensic_df, all_metrics or {},

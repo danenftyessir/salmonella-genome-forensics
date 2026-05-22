@@ -146,8 +146,11 @@ def _fill_isolate_row(
         q_cpos = ctg_pos[valid_v]
 
         # Vectorised lookup in reference index
+        # searchsorted can return len(ref_hashes) for values past the end;
+        # clip before indexing so numpy doesn't raise IndexError, then mask.
         idx = np.searchsorted(ref_hashes, q_hash)
-        hit = (idx < len(ref_hashes)) & (ref_hashes[idx] == q_hash)
+        idx_safe = np.minimum(idx, len(ref_hashes) - 1)
+        hit = (idx < len(ref_hashes)) & (ref_hashes[idx_safe] == q_hash)
         if not hit.any():
             continue
 
@@ -218,19 +221,23 @@ def build_core_snp_matrix(
     reference_seq: str,
     k: int = 21,
     min_core_fraction: float = 0.95,
+    min_isolate_callability: float = 0.10,
 ) -> pd.DataFrame:
     """
     Reference-based core-SNP matrix.
 
     Parameters
     ----------
-    genomes           : {accession: full_seq_str} OR {accession: [contig, ...]}
-                        Pass individual contigs (list form) for best accuracy;
-                        concatenated strings work but may miss inter-contig SNPs.
-    reference_seq     : Reference genome sequence (chromosome + plasmids cat.).
-    k                 : K-mer length for alignment anchoring (default 21).
-    min_core_fraction : Fraction of isolates where a position must be callable
-                        (default 0.95 = soft-core; use 1.0 for strict core).
+    genomes                  : {accession: full_seq_str} OR {accession: [contig, ...]}
+                               Pass individual contigs (list form) for best accuracy.
+    reference_seq            : Reference genome sequence (chromosome + plasmids cat.).
+    k                        : K-mer length for alignment anchoring (default 21).
+    min_core_fraction        : Fraction of isolates where a position must be callable
+                               (default 0.95 = soft-core; use 1.0 for strict core).
+    min_isolate_callability  : Drop isolates where fraction of reference positions
+                               callable < this threshold (default 0.10 = 10%).
+                               Prevents a handful of poorly-mapping assemblies from
+                               collapsing the core-SNP set to zero.
 
     Returns
     -------
@@ -267,6 +274,27 @@ def build_core_snp_matrix(
         n_called = int(np.count_nonzero(mat[i]))
         print(f"  [{i+1:02d}/{n_iso}] {acc}: {n_called:,} positions called "
               f"({n_called / ref_len:.1%} of reference)")
+
+    # ── Filter isolates with insufficient reference coverage ─────────────────
+    if min_isolate_callability > 0:
+        callability = np.count_nonzero(mat, axis=1) / ref_len  # (n_iso,)
+        keep        = callability >= min_isolate_callability
+        n_dropped   = int((~keep).sum())
+        if n_dropped > 0:
+            dropped = [accessions[i] for i in range(n_iso) if not keep[i]]
+            print(f"[SNP] Dropping {n_dropped} isolat callability < "
+                  f"{min_isolate_callability:.0%} (terlalu jauh dari referensi):")
+            for acc, frac in zip(
+                [accessions[i] for i in range(n_iso) if not keep[i]],
+                callability[~keep],
+            ):
+                print(f"       {acc}: {frac:.1%}")
+            mat        = mat[keep]
+            accessions = [accessions[i] for i in range(n_iso) if keep[i]]
+            n_iso      = len(accessions)
+            if n_iso < 2:
+                print("[WARN] Terlalu sedikit isolat setelah filter callability.")
+                return pd.DataFrame()
 
     # Core positions: callable in >= fraction of isolates (mat[row, col] != 0)
     n_called_per_pos = np.count_nonzero(mat, axis=0)   # shape (ref_len,)
