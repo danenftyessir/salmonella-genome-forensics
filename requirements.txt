@@ -20,6 +20,7 @@ torch
 transformers
 einops
 accelerate
+peft          # LoRA fine-tuning (Parameter-Efficient Fine-Tuning)
 
 # Experiment tracking (opt-in MLflow local)
 mlflow

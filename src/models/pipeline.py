@@ -1,15 +1,17 @@
 """End-to-end ML pipeline with multiple feature modes and a comparison summary.
 
 Ablation study:
-  E0 — dummy         : DummyClassifier (majority-class baseline)
-  E2 — SNP-only      : SNP integer-encoded matrix → RandomForest
-  E3 — DNABERT-only  : DNABERT-2 mean-pooled embeddings → RandomForest
-  E4 — Hybrid        : SNP + DNABERT concatenated → RandomForest
-  E5 — k-mer         : k-mer frequency features → RandomForest (optional)
-  E6 — snp_lr        : SNP matrix → LogisticRegression balanced + SelectKBest
-  E7 — snp_svc       : SNP matrix → LinearSVC balanced + SelectKBest
-  E8 — amr_lr        : AMR gene binary features → LogisticRegression balanced
-  E9 — snp_amr_lr    : SNP + AMR → LogisticRegression balanced + SelectKBest
+  E0 — dummy              : DummyClassifier (majority-class baseline)
+  E2 — SNP-only           : SNP integer-encoded matrix → RandomForest
+  E3 — DNABERT-only       : DNABERT-2 mean-pooled embeddings → RandomForest
+  E4 — Hybrid             : SNP + DNABERT concatenated → RandomForest
+  E5 — k-mer              : k-mer frequency features → RandomForest (optional)
+  E6 — snp_lr             : SNP matrix → LogisticRegression balanced + SelectKBest
+  E7 — snp_svc            : SNP matrix → LinearSVC balanced + SelectKBest
+  E8 — amr_lr             : AMR gene binary features → LogisticRegression balanced
+  E9 — snp_amr_lr         : SNP + AMR → LogisticRegression balanced + SelectKBest
+  MIL — dnabert_mil       : frozen DNABERT per-window embeddings → AttentionMIL (trained per fold)
+  MIL — dnabert_lora_mil  : LoRA-fine-tuned DNABERT + AttentionMIL (end-to-end, opt-in)
 
 Split strategy (anti-leakage):
   StratifiedGroupKFold on snp_cluster — preserves class balance while ensuring
@@ -489,6 +491,322 @@ def _print_comparison(all_metrics: dict, header: str = "Ablation Study") -> None
 
 
 # ---------------------------------------------------------------------------
+# MIL experiment (frozen DNABERT + AttentionMIL classifier)
+# ---------------------------------------------------------------------------
+
+def _run_mil_single(
+    window_embeddings_dict: dict,
+    metadata_df: pd.DataFrame,
+    cfg: dict,
+    fig_dir: str,
+    mode_name: str,
+    groups=None,
+    fig_suffix: str = "",
+) -> tuple:
+    """
+    CV loop for AttentionMIL on pre-computed frozen DNABERT window embeddings.
+
+    For each fold:
+      1. Split isolate accessions into train/test (StratifiedGroupKFold).
+      2. Train AttentionMIL only on train-fold window embeddings (no leakage).
+      3. Predict labels on test-fold isolates.
+      4. Aggregate metrics across folds.
+
+    Returns (None, metrics_dict).  AttentionMIL is not a sklearn estimator so
+    it cannot be used directly for forensic inference — None is returned in
+    place of clf.
+    """
+    import os
+    import torch
+    from embedding.mil import train_mil, predict_mil, predict_mil_proba
+
+    target_col = cfg["ml"].get("target_col", "source_binary")
+    rs         = cfg["ml"]["random_state"]
+    mil_cfg    = cfg.get("mil", {})
+    device     = cfg["dnabert"].get("device", "cpu")
+
+    # Build isolate-level aligned arrays from window_embeddings_dict
+    meta_idx = metadata_df.set_index("assembly_accession")
+    shared_accs = [
+        acc for acc in window_embeddings_dict
+        if acc in meta_idx.index and target_col in meta_idx.columns
+    ]
+    shared_accs = [acc for acc in shared_accs if not pd.isna(meta_idx.loc[acc, target_col])]
+
+    if len(shared_accs) < 4:
+        print(f"[SKIP] {mode_name}: terlalu sedikit isolat ({len(shared_accs)}) untuk MIL CV.")
+        return None, _empty_metrics()
+
+    y_all       = np.array([str(meta_idx.loc[acc, target_col]) for acc in shared_accs])
+    label_names = sorted(set(y_all.tolist()))
+
+    if len(set(y_all)) < 2:
+        print(f"[SKIP] {mode_name}: hanya 1 kelas setelah filter.")
+        return None, _empty_metrics()
+
+    # Determine groups array (for StratifiedGroupKFold)
+    if groups is not None:
+        group_col = "snp_cluster"
+        groups_arr = _extract_groups(
+            pd.Index(shared_accs), metadata_df, group_col
+        )
+    else:
+        groups_arr = None
+
+    # Build CV splitter
+    n_unique = len(np.unique(groups_arr)) if groups_arr is not None else 0
+    n_splits = min(5, max(2, n_unique)) if n_unique >= 2 else 5
+
+    splitters = []
+    if groups_arr is not None and n_unique >= 2:
+        splitters.append(StratifiedGroupKFold(n_splits=n_splits, shuffle=True, random_state=rs))
+    splitters.append(StratifiedShuffleSplit(n_splits=n_splits, test_size=cfg["ml"]["test_size"], random_state=rs))
+
+    # Dummy X for splitter (only shape/index matters)
+    X_dummy = np.zeros((len(shared_accs), 1))
+    split_type_used = "unknown"
+    splits = []
+
+    for splitter in splitters:
+        try:
+            if isinstance(splitter, StratifiedGroupKFold):
+                candidate = list(splitter.split(X_dummy, y_all, groups=groups_arr))
+            else:
+                candidate = list(splitter.split(X_dummy, y_all))
+            if any(len(np.unique(y_all[te])) >= 2 for _, te in candidate):
+                splits = candidate
+                split_type_used = type(splitter).__name__
+                break
+        except Exception:
+            continue
+
+    if not splits:
+        print(f"[SKIP] {mode_name}: tidak ada fold valid.")
+        return None, _empty_metrics()
+
+    print(f"  [CV] {mode_name}: {len(splits)}-fold ({split_type_used})")
+
+    fold_metrics  = []
+    all_y_true, all_y_pred = [], []
+
+    for fold_i, (train_idx, test_idx) in enumerate(splits):
+        if len(np.unique(y_all[test_idx])) < 2:
+            continue
+
+        train_accs  = [shared_accs[i] for i in train_idx]
+        test_accs   = [shared_accs[i] for i in test_idx]
+        y_train_d   = {acc: str(meta_idx.loc[acc, target_col]) for acc in train_accs}
+        train_embs  = {acc: window_embeddings_dict[acc] for acc in train_accs}
+
+        mil_model = train_mil(train_embs, y_train_d, label_names, mil_cfg, device=device)
+
+        y_test  = y_all[test_idx]
+        y_pred  = []
+        for acc in test_accs:
+            pred_lbl, _ = predict_mil(
+                mil_model, window_embeddings_dict[acc], label_names, device=device
+            )
+            y_pred.append(pred_lbl)
+        y_pred = np.array(y_pred)
+
+        m = evaluate(mil_model, None, y_test, label_names,
+                     y_pred_override=y_pred)
+        m["silhouette"] = float("nan")
+        fold_metrics.append(m)
+        all_y_true.extend(y_test.tolist())
+        all_y_pred.extend(y_pred.tolist())
+
+    if not fold_metrics:
+        return None, _empty_metrics()
+
+    def _mean(key):
+        vals = [fm[key] for fm in fold_metrics if not (isinstance(fm[key], float) and np.isnan(fm[key]))]
+        return float(np.mean(vals)) if vals else float("nan")
+
+    def _std(key):
+        vals = [fm[key] for fm in fold_metrics if not (isinstance(fm[key], float) and np.isnan(fm[key]))]
+        return float(np.std(vals)) if len(vals) > 1 else 0.0
+
+    metrics = {
+        "accuracy":          _mean("accuracy"),
+        "balanced_accuracy": _mean("balanced_accuracy"),
+        "f1_weighted":       _mean("f1_weighted"),
+        "f1_macro":          _mean("f1_macro"),
+        "f1_macro_std":      _std("f1_macro"),
+        "balanced_acc_std":  _std("balanced_accuracy"),
+        "silhouette":        float("nan"),
+        "split_type":        split_type_used,
+        "n_folds":           len(fold_metrics),
+        "train_ids":         [],
+        "test_ids":          [],
+        "y_pred":            np.array(all_y_pred),
+    }
+    print(
+        f"  [CV-MEAN] {mode_name}: "
+        f"bal_acc={metrics['balanced_accuracy']:.3f}±{metrics['balanced_acc_std']:.3f}  "
+        f"macro_f1={metrics['f1_macro']:.3f}±{metrics['f1_macro_std']:.3f}"
+    )
+
+    # Confusion matrix on aggregated predictions
+    os.makedirs(fig_dir, exist_ok=True)
+    plot_confusion_matrix(
+        np.array(all_y_true), np.array(all_y_pred), label_names,
+        f"{fig_dir}{mode_name}{fig_suffix}_confusion_matrix.png",
+    )
+
+    return None, metrics
+
+
+# ---------------------------------------------------------------------------
+# LoRA-MIL experiment (end-to-end fine-tuning, opt-in)
+# ---------------------------------------------------------------------------
+
+def _run_lora_mil_single(
+    windows_dict: dict,
+    metadata_df: pd.DataFrame,
+    cfg: dict,
+    fig_dir: str,
+    mode_name: str,
+    groups=None,
+    fig_suffix: str = "",
+) -> tuple:
+    """
+    CV loop for LoRA-fine-tuned DNABERT + AttentionMIL (end-to-end).
+
+    Unlike _run_mil_single, DNABERT is trainable (LoRA adapters) so we cannot
+    pre-cache window embeddings — full tokenization + forward pass happens
+    during each training step.
+
+    Requires:  pip install peft
+    Enable via:  cfg['dnabert_finetune']['enabled'] = true
+    """
+    try:
+        from embedding.finetune import train_lora_mil, predict_lora_mil
+    except ImportError as e:
+        print(f"[SKIP] {mode_name}: import finetune gagal — {e}")
+        return None, _empty_metrics()
+
+    target_col = cfg["ml"].get("target_col", "source_binary")
+    rs         = cfg["ml"]["random_state"]
+
+    meta_idx = metadata_df.set_index("assembly_accession")
+    shared_accs = [
+        acc for acc in windows_dict
+        if acc in meta_idx.index and not pd.isna(meta_idx.loc[acc, target_col])
+    ]
+    if len(shared_accs) < 4:
+        print(f"[SKIP] {mode_name}: terlalu sedikit isolat.")
+        return None, _empty_metrics()
+
+    y_all       = np.array([str(meta_idx.loc[acc, target_col]) for acc in shared_accs])
+    label_names = sorted(set(y_all.tolist()))
+
+    if len(set(y_all)) < 2:
+        print(f"[SKIP] {mode_name}: hanya 1 kelas.")
+        return None, _empty_metrics()
+
+    groups_arr = None
+    if groups is not None:
+        groups_arr = _extract_groups(pd.Index(shared_accs), metadata_df, "snp_cluster")
+
+    n_unique = len(np.unique(groups_arr)) if groups_arr is not None else 0
+    n_splits = min(5, max(2, n_unique)) if n_unique >= 2 else 5
+
+    splitters = []
+    if groups_arr is not None and n_unique >= 2:
+        splitters.append(StratifiedGroupKFold(n_splits=n_splits, shuffle=True, random_state=rs))
+    splitters.append(StratifiedShuffleSplit(n_splits=n_splits, test_size=cfg["ml"]["test_size"], random_state=rs))
+
+    X_dummy = np.zeros((len(shared_accs), 1))
+    splits, split_type_used = [], "unknown"
+    for splitter in splitters:
+        try:
+            cand = (list(splitter.split(X_dummy, y_all, groups=groups_arr))
+                    if isinstance(splitter, StratifiedGroupKFold)
+                    else list(splitter.split(X_dummy, y_all)))
+            if any(len(np.unique(y_all[te])) >= 2 for _, te in cand):
+                splits, split_type_used = cand, type(splitter).__name__
+                break
+        except Exception:
+            continue
+
+    if not splits:
+        return None, _empty_metrics()
+
+    print(f"  [CV] {mode_name}: {len(splits)}-fold ({split_type_used})")
+
+    fold_metrics = []
+    all_y_true, all_y_pred = [], []
+
+    for fold_i, (train_idx, test_idx) in enumerate(splits):
+        if len(np.unique(y_all[test_idx])) < 2:
+            continue
+
+        train_accs = [shared_accs[i] for i in train_idx]
+        test_accs  = [shared_accs[i] for i in test_idx]
+        y_train    = {acc: str(meta_idx.loc[acc, target_col]) for acc in train_accs}
+        y_test_arr = y_all[test_idx]
+
+        lora_model = train_lora_mil(
+            train_windows={acc: windows_dict[acc] for acc in train_accs},
+            y_train=y_train,
+            label_names=label_names,
+            cfg=cfg,
+        )
+
+        y_pred = np.array([
+            predict_lora_mil(lora_model, windows_dict[acc], label_names, cfg)
+            for acc in test_accs
+        ])
+
+        m = evaluate(None, None, y_test_arr, label_names, y_pred_override=y_pred)
+        m["silhouette"] = float("nan")
+        fold_metrics.append(m)
+        all_y_true.extend(y_test_arr.tolist())
+        all_y_pred.extend(y_pred.tolist())
+
+    if not fold_metrics:
+        return None, _empty_metrics()
+
+    def _mean(key):
+        vals = [fm[key] for fm in fold_metrics if not (isinstance(fm[key], float) and np.isnan(fm[key]))]
+        return float(np.mean(vals)) if vals else float("nan")
+
+    def _std(key):
+        vals = [fm[key] for fm in fold_metrics if not (isinstance(fm[key], float) and np.isnan(fm[key]))]
+        return float(np.std(vals)) if len(vals) > 1 else 0.0
+
+    metrics = {
+        "accuracy":          _mean("accuracy"),
+        "balanced_accuracy": _mean("balanced_accuracy"),
+        "f1_weighted":       _mean("f1_weighted"),
+        "f1_macro":          _mean("f1_macro"),
+        "f1_macro_std":      _std("f1_macro"),
+        "balanced_acc_std":  _std("balanced_accuracy"),
+        "silhouette":        float("nan"),
+        "split_type":        split_type_used,
+        "n_folds":           len(fold_metrics),
+        "train_ids":         [],
+        "test_ids":          [],
+        "y_pred":            np.array(all_y_pred),
+    }
+    print(
+        f"  [CV-MEAN] {mode_name}: "
+        f"bal_acc={metrics['balanced_accuracy']:.3f}±{metrics['balanced_acc_std']:.3f}  "
+        f"macro_f1={metrics['f1_macro']:.3f}±{metrics['f1_macro_std']:.3f}"
+    )
+
+    import os
+    os.makedirs(fig_dir, exist_ok=True)
+    plot_confusion_matrix(
+        np.array(all_y_true), np.array(all_y_pred), label_names,
+        f"{fig_dir}{mode_name}{fig_suffix}_confusion_matrix.png",
+    )
+
+    return None, metrics
+
+
+# ---------------------------------------------------------------------------
 # Public entry points
 # ---------------------------------------------------------------------------
 
@@ -500,6 +818,7 @@ def run_pipeline(
     kmer_df: pd.DataFrame | None = None,
     amr_df: pd.DataFrame | None = None,
     stat_embedding_df: pd.DataFrame | None = None,
+    window_embeddings_dict: dict | None = None,
     use_groups: bool = True,
 ) -> tuple:
     """
@@ -822,6 +1141,39 @@ def run_pipeline(
                                   model_override="LogisticRegression", pca_n_components=128)
             _update_best(clf, m, "dnabert_stat_kmer_amr_lr")
 
+    # --- dnabert_mil: frozen DNABERT + Attention MIL (trained per fold) ---
+    if window_embeddings_dict is not None and len(window_embeddings_dict) > 0:
+        groups_mil = _extract_groups(
+            pd.Index(list(window_embeddings_dict.keys())), metadata_df, group_col
+        ) if use_groups else None
+        _, m = _run_mil_single(
+            window_embeddings_dict, metadata_df, cfg, fig_dir,
+            "dnabert_mil", groups=groups_mil, fig_suffix=fig_suffix,
+        )
+        all_metrics["dnabert_mil"] = m
+        # MIL returns None clf — not eligible for best_clf but tracked in comparison
+
+    # --- dnabert_lora_mil: LoRA DNABERT + AttentionMIL (opt-in, slow) ---
+    if (window_embeddings_dict is not None
+            and cfg.get("dnabert_finetune", {}).get("enabled", False)):
+        # windows_dict has string windows, not embeddings — pass original windows
+        # The LoRA experiment uses raw text windows, not pre-computed embeddings.
+        # window_embeddings_dict keys == accessions with available windows,
+        # but we need the raw windows from the calling scope.
+        # We store them via the 'raw_windows' key if caller passes them.
+        raw_windows = cfg.get("_runtime_windows_dict")
+        if raw_windows is not None and len(raw_windows) > 0:
+            groups_lora = _extract_groups(
+                pd.Index(list(raw_windows.keys())), metadata_df, group_col
+            ) if use_groups else None
+            _, m = _run_lora_mil_single(
+                raw_windows, metadata_df, cfg, fig_dir,
+                "dnabert_lora_mil", groups=groups_lora, fig_suffix=fig_suffix,
+            )
+            all_metrics["dnabert_lora_mil"] = m
+        else:
+            print("[INFO] dnabert_lora_mil: raw windows tidak tersedia di cfg._runtime_windows_dict — skip.")
+
     label = ("Group-aware split (snp_cluster)" if use_groups
              else "Naive stratified split (perbandingan)")
     _print_comparison(all_metrics, header=f"Ablation Study — {label}")
@@ -843,6 +1195,8 @@ def run_pipeline(
                 f"Modes: {best_modes}. Tidak ada mode yang secara statistik unggul."
             )
             preference_order = (
+                "dnabert_lora_mil",
+                "dnabert_mil",
                 "dnabert_stat_kmer_amr_lr", "dnabert_kmer_amr_lr", "dnabert_amr_lr",
                 "dnabert_stat_pca64_lr", "dnabert_stat_pca128_svc", "dnabert_stat_lr",
                 "dnabert_only", "dnabert_lr", "dnabert_svc",

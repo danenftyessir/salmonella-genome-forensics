@@ -10,8 +10,12 @@ from sklearn.metrics import (
 from utils.io import ensure_dir
 
 
-def evaluate(clf, X_test, y_test, label_names: list) -> dict:
-    y_pred = clf.predict(X_test)
+def evaluate(clf, X_test, y_test, label_names: list, y_pred_override=None) -> dict:
+    """Evaluate a classifier.  Pass y_pred_override for non-sklearn models (e.g. MIL)."""
+    if y_pred_override is not None:
+        y_pred = y_pred_override
+    else:
+        y_pred = clf.predict(X_test)
     acc          = accuracy_score(y_test, y_pred)
     balanced_acc = balanced_accuracy_score(y_test, y_pred)
     f1_weighted  = f1_score(y_test, y_pred, average="weighted", zero_division=0)

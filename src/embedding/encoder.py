@@ -46,3 +46,9 @@ def embed_isolate_stat(windows: list, tokenizer, model, device: str = "cpu") -> 
     vecs = [embed_sequence(w, tokenizer, model, device) for w in windows]
     arr = np.stack(vecs)  # (n_windows, 768)
     return np.concatenate([arr.mean(axis=0), arr.max(axis=0), arr.std(axis=0)])
+
+
+def embed_isolate_windows(windows: list, tokenizer, model, device: str = "cpu") -> np.ndarray:
+    """Return (n_windows, 768) per-window embeddings — NOT pooled. Used by MIL."""
+    vecs = [embed_sequence(w, tokenizer, model, device) for w in windows]
+    return np.stack(vecs)
