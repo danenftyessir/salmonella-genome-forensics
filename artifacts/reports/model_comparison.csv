@@ -22,3 +22,72 @@ run_20260525_112745,dnabert_amr_lr,dnabert_amr_lr,RandomForest,0.4739,0.5063,0.4
 run_20260525_112745,dnabert_kmer_amr_lr,dnabert_kmer_amr_lr,RandomForest,0.5212,0.5507,0.5414,0.0265,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
 run_20260525_112745,dnabert_stat_kmer_amr_lr,dnabert_stat_kmer_amr_lr,RandomForest,0.5112,0.5405,0.5318,0.0375,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
 run_20260525_112745,dnabert_mil,dnabert_mil,RandomForest,0.6223,0.6374,0.6423,,,,,,StratifiedGroupKFold,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,E1  SNP Clustering,SNP pairwise distance,Hierarchical (Ward),,,,,0.0006,443.1,711.0,1.6,-,-,-,42,RandomForest,200,source_binary,Low genomic separation (1.6×); dataset may be genomically homogeneous. ARI=0.001: local cluster boundaries differ from NCBI assignments.
+run_20260525_125949,E3  DNABERT-only,DNABERT-2 mean-pooled embedding,RandomForest,0.5149,0.563,0.5232,0.0742,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,"Explicit SNP alignment (F1=0.634) outperforms general DNABERT embeddings (F1=0.515). Without Salmonella-specific fine-tuning, DNABERT representations are insufficiently specialised for source attribution on this small dataset."
+run_20260525_125949,E2  SNP-only,SNP matrix (integer-encoded),RandomForest,0.6343,0.6655,0.6573,0.2841,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,SNP features show partial source signal (Macro F1=0.634). Class imbalance or genomic similarity across certain source groups limits consistent classification. Partial overlap between food and food-animal classes is biologically expected given shared supply-chain transmission routes.
+run_20260525_125949,E4  SNP + DNABERT,SNP matrix + DNABERT-2 embedding (concatenated),RandomForest,0.6354,0.6647,0.6595,0.287,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,"Hybrid features (F1=0.635) are comparable to the best single-mode, suggesting that SNP signal dominates and DNABERT adds marginal information on this dataset. Fine-tuning DNABERT could improve the hybrid gain."
+run_20260525_125949,E5  K-mer,Tetranucleotide k-mer frequency (alignment-free),RandomForest,0.655,0.6764,0.6738,0.1033,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,"K-mer frequency (F1=0.655) is competitive with alignment-based features, indicating that global nucleotide composition already encodes source-relevant genomic signatures without alignment."
+run_20260525_125949,dummy,dummy,RandomForest,0.2816,0.5,0.2516,,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,snp_lr,snp_lr,RandomForest,0.5781,0.6448,0.5907,0.2226,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,snp_svc,snp_svc,RandomForest,0.5889,0.6184,0.621,0.2438,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,amr_lr,amr_lr,RandomForest,0.4126,0.5035,0.4557,0.6201,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,snp_amr_lr,snp_amr_lr,RandomForest,0.5781,0.6448,0.5907,0.2275,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,dnabert_lr,dnabert_lr,RandomForest,0.4845,0.5178,0.5022,0.0324,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,dnabert_svc,dnabert_svc,RandomForest,0.4716,0.4992,0.4926,0.0316,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,kmer_amr_lr,kmer_amr_lr,RandomForest,0.5891,0.6036,0.6158,0.0252,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,kmer_amr_svc,kmer_amr_svc,RandomForest,0.5715,0.5885,0.6028,0.0344,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,snp_kmer_amr_lr,snp_kmer_amr_lr,RandomForest,0.5781,0.6448,0.5907,0.2275,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,snp_kmer_amr_rf,snp_kmer_amr_rf,RandomForest,0.586,0.6387,0.6039,0.1586,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,dnabert_stat_lr,dnabert_stat_lr,RandomForest,0.5238,0.572,0.5329,0.0171,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,dnabert_stat_pca64_lr,dnabert_stat_pca64_lr,RandomForest,0.5489,0.5945,0.5615,0.0312,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,dnabert_stat_pca128_svc,dnabert_stat_pca128_svc,RandomForest,0.5134,0.5535,0.5279,0.018,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,dnabert_amr_lr,dnabert_amr_lr,RandomForest,0.4739,0.5063,0.492,0.0221,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,dnabert_kmer_amr_lr,dnabert_kmer_amr_lr,RandomForest,0.5212,0.5507,0.5414,0.0265,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,dnabert_stat_kmer_amr_lr,dnabert_stat_kmer_amr_lr,RandomForest,0.5112,0.5405,0.5318,0.0375,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_125949,dnabert_mil,dnabert_mil,RandomForest,0.6223,0.6374,0.6423,,,,,,StratifiedGroupKFold,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,E1  SNP Clustering,SNP pairwise distance,Hierarchical (Ward),,,,,0.0006,443.1,711.0,1.6,-,-,-,42,RandomForest,200,source_binary,Low genomic separation (1.6×); dataset may be genomically homogeneous. ARI=0.001: local cluster boundaries differ from NCBI assignments.
+run_20260525_132807,E3  DNABERT-only,DNABERT-2 mean-pooled embedding,RandomForest,0.5149,0.563,0.5232,0.0742,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,"Explicit SNP alignment (F1=0.634) outperforms general DNABERT embeddings (F1=0.515). Without Salmonella-specific fine-tuning, DNABERT representations are insufficiently specialised for source attribution on this small dataset."
+run_20260525_132807,E2  SNP-only,SNP matrix (integer-encoded),RandomForest,0.6343,0.6655,0.6573,0.2841,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,SNP features show partial source signal (Macro F1=0.634). Class imbalance or genomic similarity across certain source groups limits consistent classification. Partial overlap between food and food-animal classes is biologically expected given shared supply-chain transmission routes.
+run_20260525_132807,E4  SNP + DNABERT,SNP matrix + DNABERT-2 embedding (concatenated),RandomForest,0.6354,0.6647,0.6595,0.287,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,"Hybrid features (F1=0.635) are comparable to the best single-mode, suggesting that SNP signal dominates and DNABERT adds marginal information on this dataset. Fine-tuning DNABERT could improve the hybrid gain."
+run_20260525_132807,E5  K-mer,Tetranucleotide k-mer frequency (alignment-free),RandomForest,0.655,0.6764,0.6738,0.1033,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,"K-mer frequency (F1=0.655) is competitive with alignment-based features, indicating that global nucleotide composition already encodes source-relevant genomic signatures without alignment."
+run_20260525_132807,dummy,dummy,RandomForest,0.2816,0.5,0.2516,,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,snp_lr,snp_lr,RandomForest,0.5781,0.6448,0.5907,0.2226,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,snp_svc,snp_svc,RandomForest,0.5889,0.6184,0.621,0.2438,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,amr_lr,amr_lr,RandomForest,0.4126,0.5035,0.4557,0.6201,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,snp_amr_lr,snp_amr_lr,RandomForest,0.5781,0.6448,0.5907,0.2275,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,dnabert_lr,dnabert_lr,RandomForest,0.4845,0.5178,0.5022,0.0324,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,dnabert_svc,dnabert_svc,RandomForest,0.4716,0.4992,0.4926,0.0316,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,kmer_amr_lr,kmer_amr_lr,RandomForest,0.5891,0.6036,0.6158,0.0252,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,kmer_amr_svc,kmer_amr_svc,RandomForest,0.5715,0.5885,0.6028,0.0344,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,snp_kmer_amr_lr,snp_kmer_amr_lr,RandomForest,0.5781,0.6448,0.5907,0.2275,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,snp_kmer_amr_rf,snp_kmer_amr_rf,RandomForest,0.586,0.6387,0.6039,0.1586,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,dnabert_stat_lr,dnabert_stat_lr,RandomForest,0.5238,0.572,0.5329,0.0171,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,dnabert_stat_pca64_lr,dnabert_stat_pca64_lr,RandomForest,0.5489,0.5945,0.5615,0.0312,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,dnabert_stat_pca128_svc,dnabert_stat_pca128_svc,RandomForest,0.5134,0.5535,0.5279,0.018,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,dnabert_amr_lr,dnabert_amr_lr,RandomForest,0.4739,0.5063,0.492,0.0221,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,dnabert_kmer_amr_lr,dnabert_kmer_amr_lr,RandomForest,0.5212,0.5507,0.5414,0.0265,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,dnabert_stat_kmer_amr_lr,dnabert_stat_kmer_amr_lr,RandomForest,0.5112,0.5405,0.5318,0.0375,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_132807,dnabert_mil,dnabert_mil,RandomForest,0.6223,0.6374,0.6423,,,,,,StratifiedGroupKFold,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,E1  SNP Clustering,SNP pairwise distance,Hierarchical (Ward),,,,,0.0006,443.1,711.0,1.6,-,-,-,42,RandomForest,200,source_binary,Low genomic separation (1.6×); dataset may be genomically homogeneous. ARI=0.001: local cluster boundaries differ from NCBI assignments.
+run_20260525_160920,E3  DNABERT-only,DNABERT-2 mean-pooled embedding,RandomForest,0.5149,0.563,0.5232,0.0742,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,"Explicit SNP alignment (F1=0.634) outperforms general DNABERT embeddings (F1=0.515). Without Salmonella-specific fine-tuning, DNABERT representations are insufficiently specialised for source attribution on this small dataset."
+run_20260525_160920,E2  SNP-only,SNP matrix (integer-encoded),RandomForest,0.6343,0.6655,0.6573,0.2841,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,SNP features show partial source signal (Macro F1=0.634). Class imbalance or genomic similarity across certain source groups limits consistent classification. Partial overlap between food and food-animal classes is biologically expected given shared supply-chain transmission routes.
+run_20260525_160920,E4  SNP + DNABERT,SNP matrix + DNABERT-2 embedding (concatenated),RandomForest,0.6354,0.6647,0.6595,0.287,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,"Hybrid features (F1=0.635) are comparable to the best single-mode, suggesting that SNP signal dominates and DNABERT adds marginal information on this dataset. Fine-tuning DNABERT could improve the hybrid gain."
+run_20260525_160920,E5  K-mer,Tetranucleotide k-mer frequency (alignment-free),RandomForest,0.655,0.6764,0.6738,0.1033,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,"K-mer frequency (F1=0.655) is competitive with alignment-based features, indicating that global nucleotide composition already encodes source-relevant genomic signatures without alignment."
+run_20260525_160920,dummy,dummy,RandomForest,0.2816,0.5,0.2516,,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,snp_lr,snp_lr,RandomForest,0.5781,0.6448,0.5907,0.2226,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,snp_svc,snp_svc,RandomForest,0.5889,0.6184,0.621,0.2438,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,amr_lr,amr_lr,RandomForest,0.4126,0.5035,0.4557,0.6201,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,snp_amr_lr,snp_amr_lr,RandomForest,0.5781,0.6448,0.5907,0.2275,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,dnabert_lr,dnabert_lr,RandomForest,0.4845,0.5178,0.5022,0.0324,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,dnabert_svc,dnabert_svc,RandomForest,0.4716,0.4992,0.4926,0.0316,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,kmer_amr_lr,kmer_amr_lr,RandomForest,0.5891,0.6036,0.6158,0.0252,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,kmer_amr_svc,kmer_amr_svc,RandomForest,0.5715,0.5885,0.6028,0.0344,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,snp_kmer_amr_lr,snp_kmer_amr_lr,RandomForest,0.5781,0.6448,0.5907,0.2275,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,snp_kmer_amr_rf,snp_kmer_amr_rf,RandomForest,0.586,0.6387,0.6039,0.1586,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,dnabert_stat_lr,dnabert_stat_lr,RandomForest,0.5238,0.572,0.5329,0.0171,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,dnabert_stat_pca64_lr,dnabert_stat_pca64_lr,RandomForest,0.5489,0.5945,0.5615,0.0312,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,dnabert_stat_pca128_svc,dnabert_stat_pca128_svc,RandomForest,0.5134,0.5535,0.5279,0.018,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,dnabert_amr_lr,dnabert_amr_lr,RandomForest,0.4739,0.5063,0.492,0.0221,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,dnabert_kmer_amr_lr,dnabert_kmer_amr_lr,RandomForest,0.5212,0.5507,0.5414,0.0265,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,dnabert_stat_kmer_amr_lr,dnabert_stat_kmer_amr_lr,RandomForest,0.5112,0.5405,0.5318,0.0375,,,,,sgkf_cv5,0,0,42,RandomForest,200,source_binary,
+run_20260525_160920,dnabert_mil,dnabert_mil,RandomForest,0.6223,0.6374,0.6423,,,,,,StratifiedGroupKFold,0,0,42,RandomForest,200,source_binary,
