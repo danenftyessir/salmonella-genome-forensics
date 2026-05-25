@@ -299,7 +299,8 @@ def _run_single(
         # PCA reduction (fit on train only — prevents test leakage)
         if pca_n_components is not None and pca_n_components < X_train.shape[1]:
             from sklearn.decomposition import PCA as _PCA
-            pca_fold = _PCA(n_components=pca_n_components, random_state=rs)
+            n_pca = min(pca_n_components, X_train.shape[0] - 1, X_train.shape[1])
+            pca_fold = _PCA(n_components=n_pca, random_state=rs)
             X_train = pca_fold.fit_transform(X_train)
             X_test  = pca_fold.transform(X_test)
 
@@ -357,9 +358,11 @@ def _run_single(
         X_full = svd_full.fit_transform(X.astype(np.float32))
 
     pca_full = None
+    X_before_pca = X_full  # keep pre-PCA data: clf Pipeline already includes PCA step
     if pca_n_components is not None and pca_n_components < X_full.shape[1]:
         from sklearn.decomposition import PCA as _PCA
-        pca_full = _PCA(n_components=pca_n_components, random_state=rs)
+        n_pca = min(pca_n_components, X_full.shape[0] - 1, X_full.shape[1])
+        pca_full = _PCA(n_components=n_pca, random_state=rs)
         X_full = pca_full.fit_transform(X_full)
 
     clf, scaler = train_classifier(
@@ -383,7 +386,10 @@ def _run_single(
         np.array(all_y_true), np.array(all_y_pred), label_names,
         f"{fig_dir}{mode_name}{fig_suffix}_confusion_matrix.png",
     )
-    plot_roc_curve(clf, X_full, y, f"{fig_dir}{mode_name}{fig_suffix}_roc_curve.png")
+    # When clf is a Pipeline that includes PCA, pass pre-PCA data so the
+    # pipeline applies PCA internally (passing X_full would double-transform).
+    X_roc = X_before_pca if pca_full is not None else X_full
+    plot_roc_curve(clf, X_roc, y, f"{fig_dir}{mode_name}{fig_suffix}_roc_curve.png")
     return clf, metrics
 
 

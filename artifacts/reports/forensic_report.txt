@@ -1,0 +1,980 @@
+==============================================================================
+  SalmoTrace-BERT — Forensic Interpretation Report
+  Generated : 2026-05-25 11:32:49
+==============================================================================
+
+[Ablation Study — Source Attribution (all feature modes)]
+  Experiment                        Macro F1  Bal. Acc  F1 (wt.)        Split
+  -------------------------------------------------------------------------
+  E3  DNABERT RF                      0.5149    0.5630    0.5232     sgkf_cv5
+  E2  SNP-only RF                     0.6343    0.6655    0.6573     sgkf_cv5
+  E4  Hybrid SNP+DNABERT RF           0.6354    0.6647    0.6595     sgkf_cv5
+  E5  K-mer RF                        0.6550    0.6764    0.6738     sgkf_cv5
+  E0  DummyClassifier                 0.2816    0.5000    0.2516     sgkf_cv5
+  E6  SNP LR                          0.5781    0.6448    0.5907     sgkf_cv5
+  E7  SNP LinearSVC                   0.5889    0.6184    0.6210     sgkf_cv5
+  E8  AMR-only LR                     0.4126    0.5035    0.4557     sgkf_cv5
+  E9  SNP+AMR LR                      0.5781    0.6448    0.5907     sgkf_cv5
+  E3b DNABERT LR                      0.4845    0.5178    0.5022     sgkf_cv5
+  E3c DNABERT LinearSVC               0.4716    0.4992    0.4926     sgkf_cv5
+  E10 kmer+AMR LR                     0.5891    0.6036    0.6158     sgkf_cv5
+  E11 kmer+AMR LinearSVC              0.5715    0.5885    0.6028     sgkf_cv5
+  E12 SNP+kmer+AMR LR                 0.5781    0.6448    0.5907     sgkf_cv5
+  E13 SNP+kmer+AMR RF                 0.5860    0.6387    0.6039     sgkf_cv5
+  dnabert_stat_lr                     0.5238    0.5720    0.5329     sgkf_cv5
+  dnabert_stat_pca64_lr               0.5489    0.5945    0.5615     sgkf_cv5
+  dnabert_stat_pca128_svc             0.5134    0.5535    0.5279     sgkf_cv5
+  dnabert_amr_lr                      0.4739    0.5063    0.4920     sgkf_cv5
+  dnabert_kmer_amr_lr                 0.5212    0.5507    0.5414     sgkf_cv5
+  dnabert_stat_kmer_amr_lr            0.5112    0.5405    0.5318     sgkf_cv5
+  dnabert_mil                         0.6223    0.6374    0.6423 StratifiedGroupKFold
+
+[Per-Isolate Forensic Summary]
+
+  Isolate           : GCA_007907145.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011085765.1  (SNP dist = 69)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 96.0%)
+
+  Isolate           : GCA_011085765.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_007907145.1  (SNP dist = 69)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 94.0%)
+
+  Isolate           : GCA_011455035.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_007907145.1  (SNP dist = 86)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 93.0%)
+
+  Isolate           : GCA_014448235.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001756075.1  (SNP dist = 25)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 84.0%)
+
+  Isolate           : GCA_010702775.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_007907145.1  (SNP dist = 73)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 92.0%)
+
+  Isolate           : GCA_011454595.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011462135.1  (SNP dist = 30)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 95.0%)
+
+  Isolate           : GCA_011454405.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_000474355.1  (SNP dist = 138)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 92.5%)
+
+  Isolate           : GCA_010662245.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_006690585.1  (SNP dist = 4)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 93.0%)
+
+  Isolate           : GCA_006690585.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_010662245.1  (SNP dist = 4)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 93.5%)
+
+  Isolate           : GCA_011455775.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001576255.1  (SNP dist = 34)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 79.0%)
+
+  Isolate           : GCA_011457775.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_008003565.1  (SNP dist = 11)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 83.5%)
+
+  Isolate           : GCA_006691125.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011456875.1  (SNP dist = 83)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 66.5%)
+
+  Isolate           : GCA_011456875.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_006691125.1  (SNP dist = 83)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 73.5%)
+
+  Isolate           : GCA_011457055.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011458355.1  (SNP dist = 0)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 81.0%)
+
+  Isolate           : GCA_011458355.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011457055.1  (SNP dist = 0)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 72.5%)
+
+  Isolate           : GCA_011457315.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011457055.1  (SNP dist = 0)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 69.5%)
+
+  Isolate           : GCA_011458575.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011458475.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 97.5%)
+
+  Isolate           : GCA_011457535.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011457055.1  (SNP dist = 0)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 82.5%)
+
+  Isolate           : GCA_011457135.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011457395.1  (SNP dist = 0)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 80.0%)
+
+  Isolate           : GCA_011458475.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011458575.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 91.5%)
+
+  Isolate           : GCA_011457395.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011457135.1  (SNP dist = 0)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 79.0%)
+
+  Isolate           : GCA_011458515.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011458575.1  (SNP dist = 3)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 98.0%)
+
+  Isolate           : GCA_011457415.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011457495.1  (SNP dist = 3)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 95.0%)
+
+  Isolate           : GCA_011457095.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_010662265.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 84.5%)
+
+  Isolate           : GCA_010662265.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011457095.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 86.5%)
+
+  Isolate           : GCA_011457495.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011458695.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 96.5%)
+
+  Isolate           : GCA_011458695.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011457495.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 96.5%)
+
+  Isolate           : GCA_011457335.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011458575.1  (SNP dist = 1)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 96.0%)
+
+  Isolate           : GCA_008013955.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011457495.1  (SNP dist = 5)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 66.0%)
+
+  Isolate           : GCA_008003785.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_008003645.1  (SNP dist = 2)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 96.5%)
+
+  Isolate           : GCA_008003645.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_008003785.1  (SNP dist = 2)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 95.5%)
+
+  Isolate           : GCA_008003565.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011457775.1  (SNP dist = 11)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 82.5%)
+
+  Isolate           : GCA_011457625.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011457655.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 97.0%)
+
+  Isolate           : GCA_011457655.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011457625.1  (SNP dist = 0)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 98.0%)
+
+  Isolate           : GCA_006813085.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_000474355.1  (SNP dist = 63)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 91.0%)
+
+  Isolate           : GCA_006755665.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001623725.1  (SNP dist = 51)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 83.5%)
+
+  Isolate           : GCA_011089285.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_006691125.1  (SNP dist = 122)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 91.5%)
+
+  Isolate           : GCA_011088605.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011089645.1  (SNP dist = 39)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 90.0%)
+
+  Isolate           : GCA_011462135.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001756075.1  (SNP dist = 26)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 86.0%)
+
+  Isolate           : GCA_011089645.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001247185.1  (SNP dist = 24)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 93.0%)
+
+  Isolate           : GCA_008116675.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001623725.1  (SNP dist = 70)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 85.5%)
+
+  Isolate           : GCA_008115465.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001272415.1  (SNP dist = 63)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 91.5%)
+
+  Isolate           : GCA_000474395.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001006525.1  (SNP dist = 20)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 74.0%)
+
+  Isolate           : GCA_001623705.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_000974125.1  (SNP dist = 46)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 80.5%)
+
+  Isolate           : GCA_001623745.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011458575.1  (SNP dist = 25)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 86.5%)
+
+  Isolate           : GCA_001623725.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011455775.1  (SNP dist = 39)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 81.0%)
+
+  Isolate           : GCA_001623845.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001623775.1  (SNP dist = 7)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 81.0%)
+
+  Isolate           : GCA_001617585.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011455775.1  (SNP dist = 46)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 65.5%)
+
+  Isolate           : GCA_001623765.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001595275.1  (SNP dist = 200)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 80.5%)
+
+  Isolate           : GCA_001587855.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_000474575.1  (SNP dist = 240)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 86.5%)
+
+  Isolate           : GCA_001756075.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001623645.1  (SNP dist = 24)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 75.5%)
+
+  Isolate           : GCA_001272415.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001272475.1  (SNP dist = 2)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 71.0%)
+
+  Isolate           : GCA_001272475.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001272415.1  (SNP dist = 2)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 74.5%)
+
+  Isolate           : GCA_001271645.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_000974215.1  (SNP dist = 37)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 76.0%)
+
+  Isolate           : GCA_001756125.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001756075.1  (SNP dist = 31)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 87.5%)
+
+  Isolate           : GCA_001241895.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001756075.1  (SNP dist = 33)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 88.5%)
+
+  Isolate           : GCA_001271965.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001478445.1  (SNP dist = 106)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 77.5%)
+
+  Isolate           : GCA_001594765.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001588015.1  (SNP dist = 128)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 74.0%)
+
+  Isolate           : GCA_001480025.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_000474355.1  (SNP dist = 69)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 85.5%)
+
+  Isolate           : GCA_001756025.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011454405.1  (SNP dist = 331)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 80.5%)
+
+  Isolate           : GCA_001480855.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_000474355.1  (SNP dist = 6)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 82.5%)
+
+  Isolate           : GCA_001272465.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001623765.1  (SNP dist = 382)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 85.0%)
+
+  Isolate           : GCA_001272035.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001623725.1  (SNP dist = 52)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 84.5%)
+
+  Isolate           : GCA_001594455.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001594625.1  (SNP dist = 33)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 81.0%)
+
+  Isolate           : GCA_001466375.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001614025.1  (SNP dist = 9)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 87.0%)
+
+  Isolate           : GCA_001480485.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001271965.1  (SNP dist = 123)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 82.0%)
+
+  Isolate           : GCA_001588285.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001587945.1  (SNP dist = 48)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 84.0%)
+
+  Isolate           : GCA_001587965.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001587945.1  (SNP dist = 45)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 89.5%)
+
+  Isolate           : GCA_001587945.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001588215.1  (SNP dist = 36)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 87.5%)
+
+  Isolate           : GCA_001588015.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001594765.1  (SNP dist = 128)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 83.0%)
+
+  Isolate           : GCA_001587925.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001594615.1  (SNP dist = 67)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 91.5%)
+
+  Isolate           : GCA_001755865.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001756075.1  (SNP dist = 202)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 86.0%)
+
+  Isolate           : GCA_001756205.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001756125.1  (SNP dist = 91)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 78.5%)
+
+  Isolate           : GCA_001614025.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001466375.1  (SNP dist = 9)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 86.5%)
+
+  Isolate           : GCA_001594515.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001588275.1  (SNP dist = 37)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 81.0%)
+
+  Isolate           : GCA_000474555.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001006525.1  (SNP dist = 26)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 89.0%)
+
+  Isolate           : GCA_001594585.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001588275.1  (SNP dist = 41)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 80.5%)
+
+  Isolate           : GCA_001594595.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001588355.1  (SNP dist = 53)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 77.5%)
+
+  Isolate           : GCA_001588315.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001588335.1  (SNP dist = 19)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 85.5%)
+
+  Isolate           : GCA_001588235.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001594585.1  (SNP dist = 49)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 84.0%)
+
+  Isolate           : GCA_001588355.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001588365.1  (SNP dist = 52)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 86.5%)
+
+  Isolate           : GCA_001588365.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001588355.1  (SNP dist = 52)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 88.5%)
+
+  Isolate           : GCA_001588255.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001588165.1  (SNP dist = 79)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 92.5%)
+
+  Isolate           : GCA_001588335.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001588315.1  (SNP dist = 19)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 87.0%)
+
+  Isolate           : GCA_001594745.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001594685.1  (SNP dist = 21)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 66.5%)
+
+  Isolate           : GCA_001478285.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011457775.1  (SNP dist = 168)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 77.5%)
+
+  Isolate           : GCA_001480145.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001614025.1  (SNP dist = 36)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 87.0%)
+
+  Isolate           : GCA_001481175.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001623725.1  (SNP dist = 66)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 84.5%)
+
+  Isolate           : GCA_001587835.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001594585.1  (SNP dist = 48)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 81.5%)
+
+  Isolate           : GCA_001478445.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_000974215.1  (SNP dist = 37)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 71.5%)
+
+  Isolate           : GCA_001272095.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001623725.1  (SNP dist = 70)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 86.0%)
+
+  Isolate           : GCA_001479925.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001756075.1  (SNP dist = 39)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 82.5%)
+
+  Isolate           : GCA_001588045.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001272465.1  (SNP dist = 458)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 80.5%)
+
+  Isolate           : GCA_000474575.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001884505.1  (SNP dist = 3)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 77.5%)
+
+  Isolate           : GCA_001588455.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001594855.1  (SNP dist = 67)  [different source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 78.0%)
+
+  Isolate           : GCA_001588165.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001588235.1  (SNP dist = 50)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 77.5%)
+
+  Isolate           : GCA_000292755.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001623765.1  (SNP dist = 261)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 91.5%)
+
+  Isolate           : GCA_001595115.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001756075.1  (SNP dist = 110)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 87.5%)
+
+  Isolate           : GCA_001594855.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001594775.1  (SNP dist = 18)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 91.5%)
+
+  Isolate           : GCA_001594775.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001594855.1  (SNP dist = 18)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 95.0%)
+
+  Isolate           : GCA_001594825.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001594845.1  (SNP dist = 7)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 89.0%)
+
+  Isolate           : GCA_001595265.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001594615.1  (SNP dist = 390)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 89.5%)
+
+  Isolate           : GCA_001594845.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001594825.1  (SNP dist = 7)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 87.5%)
+
+  Isolate           : GCA_001594695.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001587835.1  (SNP dist = 51)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 78.5%)
+
+  Isolate           : GCA_001595225.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001595195.1  (SNP dist = 3)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 86.0%)
+
+  Isolate           : GCA_001595195.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001595225.1  (SNP dist = 3)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 88.5%)
+
+  Isolate           : GCA_001594625.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001594455.1  (SNP dist = 33)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 92.0%)
+
+  Isolate           : GCA_001595185.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001595195.1  (SNP dist = 6)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 82.0%)
+
+  Isolate           : GCA_001595355.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001714645.1  (SNP dist = 5)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 94.5%)
+
+  Isolate           : GCA_001595105.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001594915.1  (SNP dist = 13)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 86.0%)
+
+  Isolate           : GCA_001595235.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001595105.1  (SNP dist = 22)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 87.5%)
+
+  Isolate           : GCA_001594935.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001594915.1  (SNP dist = 13)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 88.5%)
+
+  Isolate           : GCA_001595315.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001595275.1  (SNP dist = 4)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 82.5%)
+
+  Isolate           : GCA_001595275.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001595315.1  (SNP dist = 4)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 89.0%)
+
+  Isolate           : GCA_001714645.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001595355.1  (SNP dist = 5)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 89.0%)
+
+  Isolate           : GCA_001595345.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001595275.1  (SNP dist = 40)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 85.5%)
+
+  Isolate           : GCA_000027025.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001594745.1  (SNP dist = 276)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 96.0%)
+
+  Isolate           : GCA_001922185.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_010662245.1  (SNP dist = 40)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 94.5%)
+
+  Isolate           : GCA_001576275.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001577505.1  (SNP dist = 52)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 96.0%)
+
+  Isolate           : GCA_001293505.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001006525.1  (SNP dist = 71)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 82.5%)
+
+  Isolate           : GCA_000465195.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001756075.1  (SNP dist = 147)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 83.5%)
+
+  Isolate           : GCA_001295155.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001614175.1  (SNP dist = 25)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 88.5%)
+
+  Isolate           : GCA_001623775.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001623845.1  (SNP dist = 7)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 70.5%)
+
+  Isolate           : GCA_000636135.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011457135.1  (SNP dist = 47)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 93.5%)
+
+  Isolate           : GCA_001576255.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011455775.1  (SNP dist = 34)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 93.0%)
+
+  Isolate           : GCA_001623645.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001756075.1  (SNP dist = 24)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 72.5%)
+
+  Isolate           : GCA_001623685.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001623725.1  (SNP dist = 51)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 72.0%)
+
+  Isolate           : GCA_001006525.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_000474395.1  (SNP dist = 20)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 77.5%)
+
+  Isolate           : GCA_000474475.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_000474355.1  (SNP dist = 6)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 97.0%)
+
+  Isolate           : GCA_000474355.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001480855.1  (SNP dist = 6)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 98.0%)
+
+  Isolate           : GCA_000474335.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_000474355.1  (SNP dist = 15)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 96.5%)
+
+  Isolate           : GCA_001594685.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001594745.1  (SNP dist = 21)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 89.5%)
+
+  Isolate           : GCA_001594795.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001594855.1  (SNP dist = 20)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 90.0%)
+
+  Isolate           : GCA_001594875.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001594855.1  (SNP dist = 19)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 83.0%)
+
+  Isolate           : GCA_001595305.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001595195.1  (SNP dist = 12)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 89.5%)
+
+  Isolate           : GCA_001595145.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001595195.1  (SNP dist = 7)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 86.0%)
+
+  Isolate           : GCA_001594955.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001594915.1  (SNP dist = 4)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 91.5%)
+
+  Isolate           : GCA_001594915.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001594905.1  (SNP dist = 3)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 88.0%)
+
+  Isolate           : GCA_001595155.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001595195.1  (SNP dist = 20)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 87.5%)
+
+  Isolate           : GCA_001594905.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001594915.1  (SNP dist = 3)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 90.5%)
+
+  Isolate           : GCA_000430145.3
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001756075.1  (SNP dist = 29)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 79.0%)
+
+  Isolate           : GCA_001247185.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_011089645.1  (SNP dist = 24)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 91.0%)
+
+  Isolate           : GCA_001481075.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001614025.1  (SNP dist = 37)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 86.5%)
+
+  Isolate           : GCA_001614175.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001295155.1  (SNP dist = 25)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 83.5%)
+
+  Isolate           : GCA_001588215.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001587945.1  (SNP dist = 36)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 82.5%)
+
+  Isolate           : GCA_001588275.1
+  Known source      : food_chain_associated
+  Nearest neighbor  : GCA_001594515.1  (SNP dist = 37)  [same source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : food_chain_associated  (confidence 72.5%)
+
+  Isolate           : GCA_000743055.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_000974125.1  (SNP dist = 409)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 93.5%)
+
+  Isolate           : GCA_001577505.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001576275.1  (SNP dist = 52)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 96.5%)
+
+  Isolate           : GCA_001594615.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001594525.1  (SNP dist = 12)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 91.0%)
+
+  Isolate           : GCA_001217585.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_011455775.1  (SNP dist = 73)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 79.5%)
+
+  Isolate           : GCA_000974125.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_000974095.1  (SNP dist = 0)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 80.0%)
+
+  Isolate           : GCA_001594525.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_001594615.1  (SNP dist = 12)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 81.0%)
+
+  Isolate           : GCA_000974095.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_000974125.1  (SNP dist = 0)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 89.5%)
+
+  Isolate           : GCA_000973915.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_000974125.1  (SNP dist = 1)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 84.5%)
+
+  Isolate           : GCA_000973985.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_000974215.1  (SNP dist = 8)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 85.5%)
+
+  Isolate           : GCA_001884505.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_000474575.1  (SNP dist = 3)  [different source]
+  Neighbor source   : food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 77.5%)
+
+  Isolate           : GCA_000973845.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_000974215.1  (SNP dist = 1)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 82.5%)
+
+  Isolate           : GCA_000974215.1
+  Known source      : non_food_chain_associated
+  Nearest neighbor  : GCA_000973845.1  (SNP dist = 1)  [same source]
+  Neighbor source   : non_food_chain_associated
+  ML prediction     : non_food_chain_associated  (confidence 85.5%)
