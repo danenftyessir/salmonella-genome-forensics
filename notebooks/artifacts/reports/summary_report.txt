@@ -1,29 +1,29 @@
 ==================================================================
   SalmoTrace-BERT — Pipeline Summary Report
-  Generated : 2026-05-22 10:24:31
+  Generated : 2026-05-25 16:12:20
 ==================================================================
 
 [1] Dataset
-    Isolat valid     : 44
+    Isolat valid     : 168
     Sumber data      : NCBI Pathogen Detection / Datasets
     Referensi genome : GCF_000006945.2
 
 [2] SNP Analysis (E1 — SNP Distance Clustering)
-    Posisi SNP total : 1268
-    Jarak SNP maks   : 1250
-    Jarak SNP rata²  : 146.41
+    Posisi SNP total : 8157
+    Jarak SNP maks   : 993
+    Jarak SNP rata²  : 505.85
 
 [3] Hierarchical Clustering
-    Metode           : ward
+    Metode           : average
     Jumlah kluster   : 5
 
 [3b] Cluster Validation vs Metadata (ARI / NMI)
     Metadata Col                ARI      NMI   #Cat
     ----------------------------------------------
-    isolation_source         0.1346   0.3779     12
-    serovar                  0.1304   0.1147      2
-    snp_cluster              0.1282   0.3735     17
-    geo_loc_name             0.1342   0.3667      9
+    isolation_source         0.0245   0.2087     22
+    serovar                 -0.0318   0.0737      3
+    snp_cluster              0.0006   0.1912     52
+    geo_loc_name            -0.0195   0.1607     38
 
 [4] DNABERT Embedding
     Model            : zhihan1996/DNABERT-2-117M
@@ -33,9 +33,9 @@
 [5] ML Classification — Ablation Study (Source Attribution)
     Experiment                        Macro F1  Bal. Acc  F1 (wt.)  Silhouette      Split
     ----------------------------------------------------------------------------------
-    E2  SNP-only Random Forest          0.4176    0.5123    0.4490      0.1794   sgkf_cv5
-    E3  DNABERT Embedding               0.3437    0.4667    0.4152         -     sgkf_cv5
-    E4  Hybrid SNP + DNABERT            0.3554    0.4857    0.4335         -     sgkf_cv5
+    E2  SNP-only Random Forest          0.6343    0.6655    0.6573      0.2841   sgkf_cv5
+    E3  DNABERT Embedding               0.5149    0.5630    0.5232      0.0742   sgkf_cv5
+    E4  Hybrid SNP + DNABERT            0.6354    0.6647    0.6595      0.2870   sgkf_cv5
 
 [6] Output Files
     Figures          : outputs/figures/

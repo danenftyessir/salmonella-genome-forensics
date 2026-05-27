@@ -4,38 +4,43 @@
 
 [PERINGATAN AKTIF]
 ────────────────────────────────────────────────────────────────────────────────
-  1. CLASS IMBALANCE: 8 kelas dengan < 3 sampel: {'swine': 2, 'human': 2, 'produce': 1,
-     'animal_other': 1, 'environment': 1, 'raw milk': 1, 'pet_food': 1, 'turkey': 1}.
+  1. CLASS IMBALANCE: 14 kelas dengan < 3 sampel: {'environment': 2, 'Food': 2,
+     'animal_other': 1, 'pet_food': 1, 'In natura meat': 1, 'raw milk': 1, 'urine': 1,
+     'Feed raw material': 1, 'Cerebrospinal fluid': 1, 'not isolated': 1, 'Final
+     product': 1, 'not known': 1, 'Industrialized product': 1, 'Laboratory': 1}.
      Estimasi F1 per kelas tidak stabil untuk kelas kecil.
-  2. LEAKAGE RISK TINGGI: snp_only ΔF1=+0.345, kmer_only ΔF1=+0.190. Naive F1 jauh lebih
-     tinggi dari group-aware F1 — menunjukkan bahwa split tanpa kontrol SNP cluster
-     menghasilkan overestimasi performa nyata.
-  3. BIAS GEOGRAFIS: 100% isolat berasal dari 'USA'. Hasil mungkin tidak generalizable
-     ke wilayah lain. Klaim dibatasi pada dataset yang dianalisis.
+  2. LEAKAGE RISK MODERAT: ΔF1 maksimum = +0.088. Sebagian isolat berkerabat mungkin
+     tersebar ke set test. Hasil group-aware tetap digunakan sebagai laporan utama.
+  3. SNP KURANG DISKRIMINATIF: separation ratio = 1.6×. Jarak SNP within-cluster dan
+     between-cluster hampir sama, sehingga matriks SNP belum mampu memisahkan kelompok
+     sumber dengan baik. Ini bukan semata homogenitas dataset, melainkan sinyal SNP yang
+     tidak cukup informatif untuk membedakan sumber isolasi.
 
 [CATATAN PENTING]
 ────────────────────────────────────────────────────────────────────────────────
   1. Dataset bukan isolat MBG. Penelitian ini menggunakan data publik NCBI Pathogen
      Detection untuk mensimulasikan forensik genomik. MBG diposisikan sebagai konteks
      aktual keamanan pangan, bukan target investigasi langsung.
-  2. Dataset moderat: 44 isolat. Cukup untuk demonstrasi pipeline, tetapi generalisasi
-     ke populasi lebih luas perlu dataset yang lebih besar.
-  3. DNABERT-2 digunakan sebagai feature extractor tanpa fine-tuning
+  2. DNABERT-2 digunakan sebagai feature extractor tanpa fine-tuning
      (zhihan1996/DNABERT-2-117M). Embedding bersifat general dan mungkin tidak optimal
      untuk Salmonella. Fine-tuning pada data Salmonella spesifik bisa meningkatkan
      performa embedding secara signifikan.
-  4. Label metadata dinormalisasi: 12 kategori unik. Jika entri 'Not Provided' masih
+  3. Label metadata dinormalisasi: 23 kategori unik. Jika entri 'Not Provided' masih
      muncul, ini keterbatasan dataset (metadata mungkin di-cache sebelum filter ambigu
      diperbarui). Set force_recompute: true dan hapus artifacts/data/interim/ untuk
      membersihkan ulang.
+  4. Distribusi geografis: 13 negara/wilayah. Lokasi dominan: 'USA' (48%). Interpretasi
+     tetap dibatasi pada dataset publik yang dianalisis.
 
 [RISIKO DIMITIGASI]
 ────────────────────────────────────────────────────────────────────────────────
-  1. Separasi genomik baik: 32.2× — cluster terbentuk dengan jelas.
-  2. Reference genome tetap: GCF_000006945.2 (Salmonella Typhimurium LT2). Reference
+  1. Target "source_binary" cukup seimbang: 1.0x ({'non_food_chain_associated': 84,
+     'food_chain_associated': 84}).
+  2. Dataset: 168 isolat — ukuran memadai untuk eksperimen ini.
+  3. Reference genome tetap: GCF_000006945.2 (Salmonella Typhimurium LT2). Reference
      yang berbeda akan menghasilkan posisi SNP yang berbeda. Pilihan ini
      didokumentasikan di config.yaml dan manifest.json.
-  3. QC: semua 44 isolat lulus threshold kualitas genome.
+  4. QC: semua 168 isolat lulus threshold kualitas genome.
 
 ────────────────────────────────────────────────────────────────────────────────
   DISCLAIMER:

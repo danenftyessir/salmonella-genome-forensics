@@ -79,15 +79,27 @@ def generate_forensic_summary(
     Write a human-readable forensic interpretation report.
 
     Includes:
-      - Experiment comparison table (E2 SNP-only, E3 DNABERT, E4 Hybrid)
+      - Experiment comparison table (all modes in all_metrics)
       - Per-isolate block: nearest neighbor, SNP distance, source match, ML prediction
     """
     ensure_dir(str(Path(out_path).parent))
 
-    _EXP_LABELS = {
-        "snp_only":     "E2  SNP-only Random Forest",
-        "dnabert_only": "E3  DNABERT Embedding",
-        "hybrid":       "E4  Hybrid SNP + DNABERT",
+    _EXP_LABEL_MAP = {
+        "dummy":            "E0  DummyClassifier",
+        "snp_only":         "E2  SNP-only RF",
+        "dnabert_only":     "E3  DNABERT RF",
+        "hybrid":           "E4  Hybrid SNP+DNABERT RF",
+        "kmer_only":        "E5  K-mer RF",
+        "snp_lr":           "E6  SNP LR",
+        "snp_svc":          "E7  SNP LinearSVC",
+        "amr_lr":           "E8  AMR-only LR",
+        "snp_amr_lr":       "E9  SNP+AMR LR",
+        "dnabert_lr":       "E3b DNABERT LR",
+        "dnabert_svc":      "E3c DNABERT LinearSVC",
+        "kmer_amr_lr":      "E10 kmer+AMR LR",
+        "kmer_amr_svc":     "E11 kmer+AMR LinearSVC",
+        "snp_kmer_amr_lr":  "E12 SNP+kmer+AMR LR",
+        "snp_kmer_amr_rf":  "E13 SNP+kmer+AMR RF",
     }
 
     lines = [
@@ -96,13 +108,12 @@ def generate_forensic_summary(
         f"  Generated : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
         "=" * 78,
         "",
-        "[Ablation Study — Source Attribution (3 feature modes)]",
+        "[Ablation Study — Source Attribution (all feature modes)]",
         f"  {'Experiment':<32} {'Macro F1':>9} {'Bal. Acc':>9} {'F1 (wt.)':>9} {'Split':>12}",
         f"  {'-' * 73}",
     ]
-    for key in ["snp_only", "dnabert_only", "hybrid"]:
-        m = all_metrics.get(key, {})
-        label = _EXP_LABELS.get(key, key)
+    for key, m in all_metrics.items():
+        label = _EXP_LABEL_MAP.get(key, key)
         lines.append(
             f"  {label:<32}"
             f" {m.get('f1_macro', 0.0):>9.4f}"
