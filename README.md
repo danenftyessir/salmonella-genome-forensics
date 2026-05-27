@@ -68,7 +68,6 @@ salmonella-genome-forensics/
 │   ├── models/       rf_model.joblib          ← TIDAK di-git
 │   └── reports/      metrics.json, manifest.json, model_comparison.csv,
 │                     forensic_report.txt, limitations_report.txt
-└── icml2026/         Laporan ilmiah format ICML 2026 (.tex)
 ```
 
 ---
