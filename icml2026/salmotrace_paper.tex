@@ -1,0 +1,563 @@
+\documentclass{article}
+
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+\usepackage[accepted]{icml2026}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+
+\usepackage[capitalize,noabbrev]{cleveref}
+
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+  basicstyle=\ttfamily\scriptsize,
+  breaklines=true,
+  breakatwhitespace=false,
+  frame=single,
+  rulecolor=\color{gray!50},
+  backgroundcolor=\color{gray!5},
+  keywordstyle=\color{blue!70}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{orange!80!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=4pt,
+  xleftmargin=12pt,
+  language=Python,
+  tabsize=4,
+  showstringspaces=false,
+}
+
+\icmltitlerunning{\phantom{x}}
+
+\begin{document}
+
+\twocolumn[
+  \icmltitle{SalmoTrace-BERT: Atribusi Sumber Genomik \textit{Salmonella enterica}
+    Menggunakan Fitur SNP, Frekuensi K-mer,\\
+    dan Embedding DNABERT-2}
+
+  \icmlsetsymbol{equal}{*}
+
+  \begin{icmlauthorlist}
+    \icmlauthor{Muhammad Raihaan Perdana}{}
+    \icmlauthor{Danendra Shafi Athallah}{}
+    \icmlauthor{M. Abizzar Gamadrian}{}
+    \icmlauthor{Kenzie Raffa Ardhana}{}
+  \end{icmlauthorlist}
+
+  \icmlkeywords{epidemiologi genomik, atribusi sumber, Salmonella,
+    DNABERT-2, SNP, k-mer, machine learning, keamanan pangan}
+
+  \vskip 0.3in
+]
+
+\printAffiliationsAndNotice{}
+
+\begin{abstract}
+Mengidentifikasi asal isolat \textit{Salmonella enterica}, apakah berasal
+dari rantai pangan atau bukan, merupakan tantangan utama dalam surveilans
+keamanan pangan berbasis genomik. Kami menyajikan SalmoTrace-BERT, sebuah
+pipeline Python yang melakukan atribusi sumber biner pada 168 rakit genom
+publik dari NCBI Pathogen Detection, menggunakan tiga representasi fitur
+genomik komplementer: (i) matriks SNP berbasis referensi (8.157 posisi),
+(ii) frekuensi pentanukleotida k-mer bebas-alignment (1.024 fitur), dan
+(iii) embedding kontekstual DNABERT-2 (768 dimensi). Klasifikasi dievaluasi
+dengan validasi silang \textsc{StratifiedGroupKFold} yang dikelompokkan
+berdasarkan kluster SNP NCBI untuk mencegah kebocoran data dari isolat
+berkerabat. Studi ablasi menunjukkan bahwa fitur k-mer mencapai macro F1
+terbaik 0,655, sementara DNABERT-2 tanpa fine-tuning hanya menghasilkan
+F1\,=\,0,515. Perlu dicatat bahwa performa klasifikasi secara keseluruhan
+masih terbatas, hal ini disebabkan ukuran dataset yang relatif kecil
+(168 isolat) dan homogenitas genomik inherent isolat \textit{Salmonella}
+publik yang membatasi daya diskriminasi sinyal genomik.
+\end{abstract}
+
+% =========================================================================
+\section{Pendahuluan}
+% =========================================================================
+
+\textit{Salmonella enterica} adalah penyebab utama penyakit bawaan makanan
+di seluruh dunia, bertanggung jawab atas sekitar 93 juta kasus dan 155.000
+kematian setiap tahun \cite{who2023salmonella}. Dalam konteks keamanan pangan,
+kemampuan melacak asal isolat, apakah dari rantai produksi pangan seperti
+ternak dan unggas, atau dari lingkungan non-rantai pangan seperti sampel
+klinis, merupakan fondasi investigasi wabah berbasis genomik.
+
+\textit{Whole-genome sequencing} (WGS) telah mentransformasi epidemiologi
+dengan menyediakan matriks \textit{single-nucleotide polymorphism} (SNP) yang
+menangkap variasi genetik pada resolusi tinggi \cite{loman2015rapid}. Alat
+pemanggil SNP berbasis referensi seperti Snippy \cite{illingworth2021snippy}
+dan BLAST+ \cite{camacho2009blast} telah menjadi standar investigasi wabah,
+di mana jarak Hamming berpasangan dari matriks core-SNP digunakan untuk
+pengelompokan hierarkis dan atribusi sumber \cite{achtman2012mlst,nguyen2020source}.
+Namun, pipeline alignment penuh bersifat mahal secara komputasi, dan daya
+diskriminasinya bergantung pada keragaman genomik kumpulan isolat.
+
+Sebagai pelengkap, profil frekuensi k-mer bebas-alignment, seperti yang
+digunakan pada sketsa MinHash \cite{ondov2016mash}, dapat menangkap sinyal
+komposisi nukleotida yang relevan tanpa alignment eksplisit. Di sisi lain,
+model bahasa DNA pra-latih DNABERT \cite{ji2021dnabert} dan DNABERT-2
+\cite{zhou2023dnabert2} menghasilkan embedding kontekstual 768 dimensi yang
+secara teoritis mengkodekan motif sekuens relevan-sumber; namun keduanya
+memerlukan fine-tuning pada tugas genomik hilir untuk mencapai performa
+kompetitif.
+
+Perbandingan sistematis ketiga jenis representasi ini, SNP, k-mer, dan
+embedding, untuk atribusi sumber \textit{Salmonella} dengan evaluasi yang
+ketat terhadap kebocoran data dari isolat berkerabat belum pernah dilaporkan.
+Penelitian ini mengisi kesenjangan tersebut. Perlu ditekankan bahwa proyek
+ini merupakan \textbf{simulasi forensik genomik} menggunakan 168 isolat data
+publik NCBI; ukuran dataset yang terbatas dan homogenitas genomik inherent
+isolat publik menyebabkan performa klasifikasi belum optimal, hal ini menjadi
+batasan eksplisit yang dibahas pada Bagian~\ref{sec:hasil}.
+
+\textbf{Rumusan masalah:}
+\begin{enumerate}
+  \item Apakah frekuensi k-mer bebas-alignment dapat menyamai atau melampaui
+        fitur SNP untuk atribusi sumber?
+  \item Apakah DNABERT-2 tanpa fine-tuning memberikan informasi komplementer
+        terhadap fitur SNP?
+  \item Seberapa diskriminatif pengelompokan hierarkis berbasis SNP untuk
+        memisahkan isolat rantai pangan dari non-rantai pangan?
+\end{enumerate}
+
+\textbf{Kontribusi:}
+\begin{itemize}
+  \item Pipeline Python end-to-end (\textit{SalmoTrace-BERT}) mencakup QC
+        genom, ekstraksi SNP, komputasi k-mer, embedding DNABERT-2, dan
+        klasifikasi multi-fitur dengan metadata AMR.
+  \item Protokol evaluasi group-aware (StratifiedGroupKFold per kluster SNP
+        NCBI) yang memitigasi kebocoran dari isolat berkerabat.
+  \item Studi ablasi komparatif pada 168 genom \textit{S.~enterica} dengan
+        interpretasi biologis dan analisis keterbatasan eksplisit.
+\end{itemize}
+
+% =========================================================================
+\section{Metode}
+% =========================================================================
+
+\subsection{Dataset dan Kontrol Kualitas}
+
+Kami mengunduh 168 rakit genom \textit{S.~enterica} (format FASTA) beserta
+metadata dari NCBI Pathogen Detection \cite{ncbi_pathogen}. Genom referensi
+adalah \textit{S.~enterica} serovar Typhimurium LT2 (aksesi GCF\_000006945.2).
+Setiap rakit dikenai tiga filter kualitas: ukuran genom 4--6\,Mb, fraksi-N
+$\leq$5\%, dan kontig $\leq$500. Seluruh 168 isolat lulus QC.
+
+Label sumber isolasi dinormalisasi dari 23 kategori mentah menjadi target
+biner seimbang: \texttt{food\_chain\_associated} (FCA) dan
+\texttt{non\_food\_chain\_associated} (NFCA), masing-masing 84 isolat.
+Cakupan geografis mencakup 13 negara; 48\% isolat berasal dari Amerika Serikat.
+
+\subsection{Ekstraksi Fitur}
+
+\textbf{Matriks SNP.}
+Pemanggilan SNP berbasis referensi dilakukan dengan pencocokan k-mer (k\,=\,21),
+menghasilkan 8.157 posisi variabel. Nukleotida dikodekan sebagai bilangan bulat
+(A$\to$0, C$\to$1, G$\to$2, T$\to$3) membentuk matriks $168\times8.157$.
+
+\textbf{Fitur k-mer.}
+Frekuensi pentanukleotida (5-mer) dihitung genome-wide, menghasilkan matriks
+$168\times1.024$ yang ternormalisasi dalam [0,\,1].
+
+\textbf{Embedding DNABERT-2.}
+Sekuens dipotong menjadi jendela 512\,bp (maks.\ 500 per isolat, stride 256\,bp),
+ditokenisasi, lalu dilewatkan melalui DNABERT-2-117M \cite{zhou2023dnabert2}.
+Embedding per-isolat diperoleh via \textit{masked mean pooling} atas seluruh
+jendela. Model digunakan sebagai ekstraktor beku tanpa fine-tuning.
+
+\textbf{Fitur AMR.}
+Vektor biner kehadiran gen resistansi antibiotik dari metadata NCBI disertakan
+pada kondisi ablasi tertentu.
+
+\textbf{Attention MIL.}
+Model \textit{Multiple Instance Learning} berbasis atensi dilatih atas embedding
+per-jendela DNABERT-2, memungkinkan pembobotan jendela secara diskriminatif.
+
+\subsection{Klasifikasi dan Evaluasi}
+
+Semua klasifikasi menggunakan Random Forest (200 estimator,
+\texttt{random\_state}\,=\,42) kecuali dinyatakan lain. Protokol utama adalah
+\textsc{StratifiedGroupKFold} 5-lipat dengan \texttt{snp\_cluster} NCBI sebagai
+grup, mencegah isolat berkerabat muncul di lipatan pelatihan dan pengujian.
+Metrik: F1 makro, akurasi seimbang, F1 berbobot, dan silhouette score.
+
+\subsection{Gambaran Umum Pipeline}
+\label{sec:pipeline}
+
+Gambar~\ref{fig:flowchart} mengilustrasikan alur pipeline secara keseluruhan,
+dari input data hingga laporan forensik.
+
+\begin{figure*}[ht]
+  \vskip 0.1in
+  \begin{center}
+    \includegraphics[height=0.60\textheight, keepaspectratio]{pipeline_flowchart}
+  \end{center}
+  \caption{Alur pipeline SalmoTrace-BERT: dari input FASTA dan metadata hingga
+    atribusi sumber forensik melalui tiga jalur ekstraksi fitur (SNP, k-mer,
+    dan DNABERT-2).}
+  \label{fig:flowchart}
+  \vskip -0.1in
+\end{figure*}
+
+\subsection{Cuplikan Kode Utama}
+
+Berikut tiga fungsi yang menjadi inti pipeline. Kode lengkap tersedia di
+repositori GitHub proyek.
+
+\textbf{(1) Ekstraksi Matriks SNP} (\texttt{src/snp/extractor.py}).
+Fungsi \texttt{build\_core\_snp\_matrix()} membangun matriks SNP berbasis
+referensi menggunakan indeks k-mer vectorised dan diagonal chaining per kontig:
+
+\begin{lstlisting}[caption={Ekstraksi matriks core-SNP berbasis referensi.}]
+def build_core_snp_matrix(
+    genomes, reference_seq, k=21,
+    min_core_fraction=0.95,
+    min_isolate_callability=0.10,
+):
+    ref_seq_up = reference_seq.upper()
+    ref_len    = len(ref_seq_up)
+    # Bangun indeks k-mer unik dari referensi (vectorised NumPy)
+    ref_hashes, ref_pos = _build_ref_kmer_index(ref_seq_up, k)
+    # Alokasi matriks uint8: n_isolat x ref_len (A/T/G/C/N)
+    matrix = np.zeros((len(genomes), ref_len), dtype=np.uint8)
+    for i, (acc, contigs) in enumerate(genomes.items()):
+        _fill_isolate_row(contigs, ref_hashes,
+                          ref_pos, matrix[i], k)
+    # Filter: core positions + remove invariant sites
+    callable_frac = (matrix > 0).mean(axis=0)
+    core_mask = callable_frac >= min_core_fraction
+    snp_matrix = matrix[:, core_mask]
+    variant_mask = snp_matrix.max(0) != snp_matrix.min(0)
+    return pd.DataFrame(snp_matrix[:, variant_mask],
+                        index=list(genomes.keys()))
+\end{lstlisting}
+
+\textbf{(2) Komputasi K-mer} (\texttt{src/data/kmer.py}).
+Fungsi \texttt{extract\_kmer\_features()} menghitung frekuensi 5-mer yang
+ternormalisasi secara genome-wide tanpa alignment:
+
+\begin{lstlisting}[caption={Komputasi frekuensi pentanukleotida (5-mer).}]
+def extract_kmer_features(genomes, k=5):
+    kmers = _all_kmers(k)   # 4^k = 1024 kombinasi
+    rows  = {}
+    for acc, seq in genomes.items():
+        seq_up = seq.upper()
+        counts = Counter()
+        for i in range(len(seq_up) - k + 1):
+            window = seq_up[i: i + k]
+            if all(c in "ATGC" for c in window):
+                counts[window] += 1
+        total = sum(counts.values()) or 1
+        # Normalisasi: frekuensi dalam [0, 1]
+        rows[acc] = {km: counts.get(km, 0) / total
+                     for km in kmers}
+    return pd.DataFrame(rows).T
+\end{lstlisting}
+
+\textbf{(3) Embedding DNABERT-2} (\texttt{src/embedding/encoder.py}).
+Fungsi \texttt{embed\_sequence()} menghasilkan vektor 768 dimensi per jendela
+dengan \textit{masked mean pooling} atas \textit{hidden state} terakhir:
+
+\begin{lstlisting}[caption={Encoding satu jendela DNA dengan DNABERT-2.}]
+def embed_sequence(seq, tokenizer, model, device="cpu"):
+    inputs = tokenizer(seq, return_tensors="pt",
+                       truncation=True, max_length=512)
+    input_ids     = inputs["input_ids"].to(device)
+    attention_mask = inputs["attention_mask"].to(device)
+    with torch.no_grad():
+        outputs = model(input_ids)
+    hidden = outputs[0]  # (1, seq_len, 768)
+    # Masked mean pooling: abaikan token padding
+    mask = attention_mask.unsqueeze(-1).float()
+    emb  = (hidden * mask).sum(dim=1) \
+           / mask.sum(dim=1).clamp(min=1e-9)
+    return emb.squeeze(0).cpu().numpy()  # (768,)
+\end{lstlisting}
+
+% =========================================================================
+\section{Hasil dan Diskusi}
+\label{sec:hasil}
+% =========================================================================
+
+\subsection{Analisis Data Eksploratif (EDA)}
+
+Sebelum klasifikasi, kami melakukan analisis eksploratif untuk memahami
+karakteristik dataset. Tabel~\ref{tab:eda} merangkum statistik utama.
+
+\begin{table}[ht]
+  \caption{Statistik deskriptif dataset SalmoTrace-BERT.}
+  \label{tab:eda}
+  \begin{center}
+    \begin{small}
+      \begin{tabular}{lr}
+        \toprule
+        Karakteristik                        & Nilai         \\
+        \midrule
+        Jumlah isolat total                  & 168           \\
+        Isolat FCA / NFCA                    & 84 / 84       \\
+        Jumlah negara asal                   & 13            \\
+        Proporsi isolat dari USA             & 48\%          \\
+        Posisi SNP teridentifikasi           & 8.157         \\
+        Jarak SNP minimum antar-isolat       & $<$10         \\
+        Jarak SNP maksimum antar-isolat      & 993           \\
+        Rata-rata jarak SNP                  & 505,85        \\
+        Jumlah kluster hierarkis (k=5)       & 5             \\
+        Kluster SNP NCBI unik                & 52            \\
+        Dimensi embedding DNABERT-2          & 768           \\
+        Fitur k-mer (5-mer)                  & 1.024         \\
+        \bottomrule
+      \end{tabular}
+    \end{small}
+  \end{center}
+  \vskip -0.1in
+\end{table}
+
+Distribusi kelas biner seimbang sempurna (84:84), menghilangkan bias
+mayoritas-kelas. Namun, distribusi geografis sangat tidak merata (48\% dari
+USA), sehingga generalisasi ke populasi global terbatas. Dari 23 kategori
+sumber isolasi mentah, 14 kategori memiliki kurang dari 3 sampel, indikasi
+ketidakseimbangan kelas halus yang dapat mendestabilisasi estimasi F1
+per-kelas. Rentang jarak SNP yang luas (min\,$<$10 hingga maks\,993)
+mengindikasikan isolat dengan kekerabatan genetik sangat dekat di satu sisi
+dan isolat yang jauh berkerabat di sisi lain; hal ini juga menjelaskan
+mengapa rasio separasi kluster ($1{,}6\times$) tergolong rendah.
+
+\subsection{Pengelompokan Hierarkis Berbasis SNP}
+
+Pengelompokan hierarkis (average linkage) menghasilkan lima kluster
+(silhouette 0,284, dipilih berdasarkan inspeksi dendrogram). Rata-rata jarak
+SNP intra-kluster 443,1 vs.\ 711,0 antar-kluster menghasilkan rasio separasi
+$1{,}6\times$ yang rendah, mencerminkan rentang jarak yang sangat lebar
+(min\,$<$10, maks\,993): pasangan klonal dan isolat jauh-berkerabat hadir
+bersamaan. Kluster pertama didominasi NFCA, sementara kluster tiga dan empat
+mencakup campuran FCA/NFCA hampir setara.
+
+Tabel~\ref{tab:clustering} menunjukkan ARI dan NMI terhadap empat kolom
+metadata. ARI\,=\,0,001 terhadap \texttt{snp\_cluster} NCBI (52 kluster,
+resolusi $\approx$50 SNP) mencerminkan perbedaan granularitas: lima kluster
+kami merepresentasikan filogeni tingkat atas, bukan pengelompokan sumber
+spesifik. NMI\,=\,0,209 untuk \texttt{isolation\_source} mengonfirmasi sinyal
+bersama yang lemah.
+
+\begin{table}[t]
+  \caption{Validasi kluster terhadap metadata (ARI / NMI). Pengelompokan
+    dengan hierarchical clustering average-linkage, $k\!=\!5$.}
+  \label{tab:clustering}
+  \begin{center}
+    \begin{small}
+      \begin{tabular}{lrrr}
+        \toprule
+        Kolom metadata       & ARI      & NMI    & \#Kat \\
+        \midrule
+        isolation\_source    & 0,025    & 0,209  & 22    \\
+        serovar              & $-$0,032 & 0,074  & 3     \\
+        snp\_cluster (NCBI)  & 0,001    & 0,191  & 52    \\
+        geo\_loc\_name       & $-$0,020 & 0,161  & 38    \\
+        \bottomrule
+      \end{tabular}
+    \end{small}
+  \end{center}
+  \vskip -0.1in
+\end{table}
+
+Meski tidak memulihkan label sumber, lima kluster ini berperan kritis sebagai
+\textit{stratifikasi grup} pada StratifiedGroupKFold: isolat klonal dalam
+kluster yang sama dipisahkan ke lipatan berbeda, mencegah kebocoran data
+(lihat Bagian~\ref{sec:hasil}).
+
+\subsection{Studi Ablasi Atribusi Sumber}
+
+Tabel~\ref{tab:ablation} merangkum seluruh 14 konfigurasi fitur-model yang
+dievaluasi. Semua konfigurasi melampaui baseline dummy (F1\,=\,0,282) secara
+substansial, namun performa tertinggi (F1\,=\,0,655) masih terbilang moderat,
+konsisten dengan keterbatasan dataset yang kecil dan homogenitas genomik
+dataset yang dibahas sebelumnya. Berikut analisis per kelompok eksperimen.
+
+\begin{table}[t]
+  \caption{Perbandingan lengkap seluruh konfigurasi fitur dan model,
+    StratifiedGroupKFold 5-lipat. \textbf{Cetak tebal} = terbaik.
+    RF=RandomForest, LR=Logistic Regression, SVC=Support Vector,
+    MIL=Attention-MIL.}
+  \label{tab:ablation}
+  \begin{center}
+    \begin{scriptsize}
+      \setlength{\tabcolsep}{4pt}
+      \begin{tabular}{llccc}
+        \toprule
+        Fitur            & Model & F1$_\text{mac}$ & Bal.Acc & F1$_w$ \\
+        \midrule
+        \multicolumn{5}{l}{\textit{Berbasis SNP}} \\
+        SNP              & RF    & 0,634$\pm$0,10  & 0,666   & 0,657  \\
+        SNP              & LR    & 0,578$\pm$0,13  & 0,645   & 0,591  \\
+        SNP              & SVC   & 0,589$\pm$0,11  & 0,618   & 0,621  \\
+        \midrule
+        \multicolumn{5}{l}{\textit{Berbasis DNABERT-2}} \\
+        DNABERT-2        & RF    & 0,515$\pm$0,09  & 0,563   & 0,523  \\
+        DNABERT-2        & LR    & 0,485$\pm$0,04  & 0,518   & 0,502  \\
+        DNABERT-2        & SVC   & 0,472$\pm$0,03  & 0,499   & 0,493  \\
+        DNABERT-2        & MIL   & 0,622           & 0,637   & 0,642  \\
+        \midrule
+        \multicolumn{5}{l}{\textit{Berbasis K-mer}} \\
+        K-mer            & RF    & \textbf{0,655}$\pm$0,09 & \textbf{0,676} & \textbf{0,674} \\
+        \midrule
+        \multicolumn{5}{l}{\textit{Gabungan (Hibrida)}} \\
+        SNP + DNABERT    & RF    & 0,635$\pm$0,10  & 0,665   & 0,660  \\
+        K-mer + AMR      & LR    & 0,589$\pm$0,06  & 0,604   & 0,616  \\
+        SNP + K-mer + AMR& RF    & 0,586$\pm$0,08  & 0,639   & 0,604  \\
+        \midrule
+        \multicolumn{5}{l}{\textit{Baseline}} \\
+        AMR only         & LR    & 0,413$\pm$0,06  & 0,504   & 0,456  \\
+        Dummy            & ---   & 0,282$\pm$0,08  & 0,500   & 0,252  \\
+        \bottomrule
+      \end{tabular}
+    \end{scriptsize}
+  \end{center}
+  \vskip -0.1in
+\end{table}
+
+\textbf{K-mer unggul.}
+Profil frekuensi pentanukleotida mencapai macro F1 terbaik 0,655 (Bal.Acc
+0,676), melampaui SNP meski tanpa alignment. Komposisi nukleotida global
+menangkap bias penggunaan kodon dan preferensi dinukleotida skala-genom yang
+berkaitan dengan adaptasi FCA secara holistik, sekaligus menjadi pilihan
+paling ringan secara komputasi. Standar deviasi $\pm$0,09 konsisten di semua
+konfigurasi RF, mencerminkan variansi dari ukuran lipatan ($\approx$33 isolat)
+bukan instabilitas model.
+
+\textbf{SNP kompetitif.}
+SNP-RF mencapai F1\,=\,0,634 (hanya 0,021 di bawah k-mer). Skor silhouette
+SNP (0,284) jauh lebih tinggi dari k-mer (0,103), namun keunggulan geometris
+ini tidak berkonversi menjadi klasifikasi lebih baik di bawah evaluasi
+group-aware karena isolat klonal dipisahkan oleh stratifikasi grup. RF
+mengungguli SVC (0,589) dan LR (0,578), mengonfirmasi struktur non-linear di
+ruang 8.157 dimensi.
+
+\textbf{DNABERT-2 sebagai representasi perantara.}
+DNABERT-2 berfungsi sebagai lapisan pemrosesan representasi, bukan fitur
+klasifikasi langsung. Embedding beku 768 dimensi belum disesuaikan untuk
+sinyal sumber \textit{Salmonella} sehingga RF langsung hanya menghasilkan
+F1\,=\,0,515; model linear lebih buruk lagi (LR 0,485; SVC 0,472),
+mengindikasikan struktur yang tidak terorganisir linear. Attention MIL yang
+mengagreagsi embedding per-jendela (512\,bp) secara selektif meningkatkan
+F1 ke 0,622 (+0,107), menunjukkan bahwa informasi sumber terkonsentrasi di
+jendela genomik tertentu yang dapat diidentifikasi mekanisme atensi.
+
+\textbf{Hibrida dan AMR.}
+Penggabungan fitur tidak memberikan peningkatan: SNP+DNABERT (0,635) hampir
+identik SNP saja; K-mer+AMR (0,589) dan tiga fitur (0,586) justru lebih
+rendah dari K-mer tunggal karena fitur AMR memperkenalkan noise. AMR saja
+(F1\,=\,0,413) mengonfirmasi gen resistansi antibiotik tidak membawa sinyal
+sumber yang memadai. RF secara konsisten mengungguli LR dan SVC di semua
+kelompok fitur.
+
+\subsection{Analisis Kebocoran Data}
+
+Untuk mengkuantifikasi dampak pemisahan group-aware, kami membandingkan
+StratifiedGroupKFold group-aware dengan pemisahan terStratifikasi naif.
+Peningkatan F1 maksimum di bawah pemisahan naif adalah
+$\Delta\text{F1}_{\max} = +0{,}088$, mengonfirmasi inflasi moderat ketika
+isolat berkerabat bocor antar-lipatan. Semua hasil yang dilaporkan menggunakan
+protokol group-aware.
+
+\subsection{Interpretasi Biologis}
+
+Keunggulan fitur k-mer atas alignment berbasis SNP memiliki penjelasan biologis
+yang masuk akal: isolat yang berasosiasi dengan rantai pangan mungkin berbagi
+bias penggunaan kodon, pola komposisi GC, atau preferensi dinukleotida skala
+genom yang berkaitan dengan adaptasi terhadap matriks pangan kaya nutrien dan
+lingkungan saluran cerna ternak. Sinyal komposisi ini ditangkap secara holistik
+oleh profil 5-mer, tetapi terdilusi dalam matriks SNP posisional yang jarang
+di mana alel spesifik pada masing-masing dari 8.157 posisi harus secara
+individual memprediksi sumber.
+
+Nilai ARI yang sangat rendah (0,001) antara lima kluster hierarkis kami dan
+52 kluster SNP yang ditetapkan NCBI menunjukkan bahwa pengelompokan kami
+menangkap tingkat granularitas genomik yang berbeda. Kluster SNP NCBI
+didefinisikan pada resolusi lebih halus; menggabungkannya menjadi lima grup
+memulihkan sinyal geografis atau filogeni luas, bukan sinyal spesifik-sumber.
+
+% =========================================================================
+\section{Kesimpulan}
+% =========================================================================
+
+Kami telah menyajikan SalmoTrace-BERT, sebuah pipeline multi-fitur untuk
+atribusi sumber biner \textit{Salmonella enterica} dari data WGS publik.
+Temuan utama kami adalah:
+
+\begin{itemize}
+  \item Profil k-mer pentanukleotida bebas-alignment (F1\,=\,0,655) sedikit
+        mengungguli fitur SNP berbasis alignment (F1\,=\,0,634) untuk
+        klasifikasi rantai pangan vs.\ non-rantai pangan, menunjukkan bahwa
+        komposisi nukleotida global mengkodekan informasi relevan-sumber.
+  \item DNABERT-2 berperan sebagai lapisan pemrosesan representasi perantara,
+        bukan fitur klasifikasi primer: embedding beku 768 dimensi dari model
+        pra-latih mengkodekan informasi kontekstual multi-spesies yang belum
+        disesuaikan untuk sinyal sumber \textit{Salmonella}, sehingga skor RF
+        langsung hanya mencapai F1\,=\,0,515. Mekanisme Attention MIL yang
+        mengagreagsi embedding per-jendela secara selektif lebih efektif
+        memanfaatkan representasi tersebut (F1\,=\,0,622), dan fine-tuning
+        tugas-spesifik diharapkan meningkatkan kualitas representasi lebih lanjut.
+  \item Evaluasi group-aware sangat penting: pemisahan naif menginflaasi F1
+        hingga 0,088 akibat kebocoran keterkaitan.
+  \item Rasio separasi genomik yang rendah ($1{,}6\times$) dan ARI mendekati
+        nol terhadap kluster NCBI mencerminkan homogenitas genomik rakit
+        \textit{Salmonella} yang tersedia secara publik, yang membatasi
+        performa klasifikasi absolut.
+\end{itemize}
+
+\textbf{Arah penelitian selanjutnya.}
+Fine-tuning DNABERT-2 pada data atribusi sumber \textit{Salmonella} berlabel
+diharapkan dapat meningkatkan kualitas embedding secara substansial. Perluasan
+dataset melampaui 168 isolat, penggabungan metadata wabah epidemiologi nyata,
+dan validasi pada koleksi yang beragam secara geografis juga merupakan langkah
+penting ke depan. Integrasi dengan alignment core-SNP berbasis Snippy dapat
+memberikan posisi SNP yang lebih presisi dibandingkan pendekatan pencocokan
+k-mer yang kami gunakan.
+
+% =========================================================================
+\section*{Pernyataan Dampak}
+% =========================================================================
+
+Penelitian ini bertujuan untuk memajukan metode komputasi dalam surveilans
+keamanan pangan berbasis genomik. Dengan menunjukkan bahwa fitur k-mer
+bebas-alignment dapat menyaingi metode berbasis SNP untuk atribusi sumber,
+pipeline kami menurunkan hambatan komputasi untuk epidemiologi genomik di
+lingkungan dengan sumber daya terbatas. Semua data yang digunakan tersedia
+secara publik melalui NCBI; tidak ada informasi pasien pribadi yang diakses.
+Pipeline ini tidak dimaksudkan untuk digunakan dalam investigasi wabah resmi
+tanpa validasi epidemiologi independen, sebagaimana dicatat secara eksplisit
+dalam dokumentasi keterbatasan kami.
+
+% =========================================================================
+\section*{Perangkat Lunak dan Data}
+% =========================================================================
+
+Kode dan dokumentasi pipeline tersedia di GitHub:
+\url{https://github.com/danenftyessir/salmonella-genome-forensics}.
+Video presentasi tersedia di \url{https://youtu.be/R-CAwuYM2es}.
+Dataset diperoleh dari NCBI Pathogen Detection
+(\url{https://www.ncbi.nlm.nih.gov/pathogens/}).
+Checkpoint model DNABERT-2 tersedia secara publik di Hugging Face
+(\texttt{zhihan1996/DNABERT-2-117M}).
+
+% =========================================================================
+
+\bibliography{salmotrace_paper}
+\bibliographystyle{icml2026}
+
+\end{document}

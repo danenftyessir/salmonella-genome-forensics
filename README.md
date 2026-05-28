@@ -76,7 +76,7 @@ salmonella-genome-forensics/
 
 ```bash
 # 1. Clone
-git clone <repo-url>
+git clone https://github.com/danenftyessir/salmonella-genome-forensics.git
 cd salmonella-genome-forensics
 
 # 2. Buat virtual environment
@@ -242,3 +242,10 @@ Referensi: GCF_000006945.2 (*S.* Typhimurium LT2). Evaluasi: StratifiedGroupKFol
 | `pyarrow` | Parquet I/O |
 
 Lihat `requirements.txt` untuk daftar lengkap dengan versi.
+
+---
+
+## Tautan
+
+- **Repositori:** [github.com/danenftyessir/salmonella-genome-forensics](https://github.com/danenftyessir/salmonella-genome-forensics.git)
+- **Video Presentasi:** [youtu.be/R-CAwuYM2es](https://youtu.be/R-CAwuYM2es)
